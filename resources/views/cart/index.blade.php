@@ -390,7 +390,7 @@
                                     <tr class="cart-item" data-cart-id="{{ $item->id }}" id="cart-row-{{ $item->id }}">
                                         <td>
                                             <div class="d-flex align-items-center gap-3">
-                                                <a href="{{ route('product.show', $product->slug ?? $product->id) }}" class="product-image-wrap">
+                                                <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="product-image-wrap">
                                                     <img src="{{ asset($product->images->first()->image_path ?? 'images/placeholder.jpg') }}"
                                                          alt="{{ $product->name }}"
                                                          class="product-image"
@@ -398,7 +398,7 @@
                                                          onerror="this.src='https://placehold.co/200x250?text=No+Image'">
                                                 </a>
                                                 <div>
-                                                    <a href="{{ route('product.show', $product->slug ?? $product->id) }}" class="product-name">
+                                                    <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="product-name">
                                                         {{ $product->name }}
                                                     </a>
                                                     @if($item->variant_id && $product->variants)
@@ -512,7 +512,7 @@
                             </span>
                         </div>
 
-                        <a href="{{ route('checkout') }}" class="btn-proceed-checkout mt-4">
+                        <a href="{{ route('checkout.index') }}" class="btn-proceed-checkout mt-4">
                             <i class="fas fa-lock me-2"></i>Proceed to Checkout
                         </a>
 

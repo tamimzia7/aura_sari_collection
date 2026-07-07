@@ -36,19 +36,19 @@
                         <p class="text-muted small">{{ Auth::user()->email }}</p>
                     </div>
                     <div class="list-group list-group-flush dashboard-sidebar border-0">
-                        <a href="{{ route('account.dashboard') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.index') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-columns me-2"></i>Dashboard Overview
                         </a>
-                        <a href="{{ route('account.orders') }}" class="list-group-item list-group-item-action border-0 nav-link active">
+                        <a href="{{ route('dashboard.orders') }}" class="list-group-item list-group-item-action border-0 nav-link active">
                             <i class="fas fa-box me-2"></i>My Orders
                         </a>
-                        <a href="{{ route('account.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-heart me-2"></i>Wishlist
                         </a>
-                        <a href="{{ route('account.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-map-marker-alt me-2"></i>Addresses
                         </a>
-                        <a href="{{ route('account.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-user me-2"></i>Profile Settings
                         </a>
                         <a class="list-group-item list-group-item-action border-0 nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -116,7 +116,7 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-end pe-4">
-                                                    <a href="{{ route('account.orders.details', $order->id) }}" class="btn btn-outline-dark btn-sm rounded-pill">
+                                                    <a href="{{ route('dashboard.order-details', $order->id) }}" class="btn btn-outline-dark btn-sm rounded-pill">
                                                         <i class="fas fa-eye me-1"></i>View
                                                     </a>
                                                 </td>

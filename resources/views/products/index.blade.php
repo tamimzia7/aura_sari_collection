@@ -354,7 +354,7 @@ body {
                             <div class="col-xl-3 col-lg-4 col-md-6 col-6">
                                 <div class="shop-product-card">
                                     <div class="product-card-image position-relative overflow-hidden">
-                                        <a href="{{ route('product.show', $product->slug ?? $product->id) }}">
+                                        <a href="{{ route('products.show', $product->slug ?? $product->id) }}">
                                             <img src="{{ asset($product->images[0] ?? 'images/placeholder.jpg') }}"
                                                  alt="{{ $product->name }}"
                                                  class="product-img-front w-100"
@@ -427,7 +427,7 @@ body {
                                         @endif
 
                                         <h6 class="product-name mb-1" style="font-size: 0.9rem;">
-                                            <a href="{{ route('product.show', $product->slug ?? $product->id) }}"
+                                            <a href="{{ route('products.show', $product->slug ?? $product->id) }}"
                                                class="text-decoration-none text-dark stretched-link">
                                                 {{ $product->name }}
                                             </a>

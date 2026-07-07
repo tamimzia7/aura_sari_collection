@@ -36,19 +36,19 @@
                         <p class="text-muted small">{{ Auth::user()->email }}</p>
                     </div>
                     <div class="list-group list-group-flush dashboard-sidebar border-0">
-                        <a href="{{ route('account.dashboard') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.index') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-columns me-2"></i>Dashboard Overview
                         </a>
-                        <a href="{{ route('account.orders') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.orders') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-box me-2"></i>My Orders
                         </a>
-                        <a href="{{ route('account.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-heart me-2"></i>Wishlist
                         </a>
-                        <a href="{{ route('account.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-map-marker-alt me-2"></i>Addresses
                         </a>
-                        <a href="{{ route('account.profile') }}" class="list-group-item list-group-item-action border-0 nav-link active">
+                        <a href="{{ route('dashboard.profile') }}" class="list-group-item list-group-item-action border-0 nav-link active">
                             <i class="far fa-user me-2"></i>Profile Settings
                         </a>
                         <a class="list-group-item list-group-item-action border-0 nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -77,7 +77,7 @@
                         <h6 class="fw-bold mb-0"><i class="far fa-user me-2"></i>Personal Information</h6>
                     </div>
                     <div class="card-body p-4 pt-0">
-                        <form method="POST" action="{{ route('account.profile.update') }}">
+                        <form method="POST" action="{{ route('dashboard.profile.update') }}">
                             @csrf
                             @method('PUT')
 
@@ -113,7 +113,7 @@
                         <h6 class="fw-bold mb-0"><i class="fas fa-lock me-2"></i>Change Password</h6>
                     </div>
                     <div class="card-body p-4 pt-0">
-                        <form method="POST" action="{{ route('account.password.update') }}">
+                        <form method="POST" action="{{ route('dashboard.password.update') }}">
                             @csrf
                             @method('PUT')
 

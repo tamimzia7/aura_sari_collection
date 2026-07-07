@@ -316,7 +316,7 @@
                     @php $product = $item->product; @endphp
                     <div class="wishlist-card" data-wishlist-id="{{ $item->id }}" id="wishlist-card-{{ $item->id }}">
                         <div class="card-image-wrap">
-                            <a href="{{ route('product.show', $product->slug ?? $product->id) }}">
+                            <a href="{{ route('products.show', $product->slug ?? $product->id) }}">
                                 <img src="{{ asset($product->images->first()->image_path ?? 'images/placeholder.jpg') }}"
                                      alt="{{ $product->name }}"
                                      class="card-image"
@@ -344,7 +344,7 @@
                         </div>
 
                         <div class="card-body">
-                            <a href="{{ route('product.show', $product->slug ?? $product->id) }}" class="product-name">
+                            <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="product-name">
                                 {{ $product->name }}
                             </a>
 
@@ -370,7 +370,7 @@
                                         <i class="fas fa-bell"></i> Notify Me
                                     @endif
                                 </button>
-                                <button type="button" class="btn-share" data-product-name="{{ $product->name }}" data-product-url="{{ route('product.show', $product->slug ?? $product->id) }}" title="Share">
+                                <button type="button" class="btn-share" data-product-name="{{ $product->name }}" data-product-url="{{ route('products.show', $product->slug ?? $product->id) }}" title="Share">
                                     <i class="fas fa-share-alt"></i>
                                 </button>
                             </div>

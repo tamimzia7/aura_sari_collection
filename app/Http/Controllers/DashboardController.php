@@ -74,6 +74,45 @@ class DashboardController extends Controller
         return back()->with('success', 'Address deleted successfully');
     }
 
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        Auth::user()->update([
+            'password' => bcrypt($request->new_password),
+        ]);
+
+        return back()->with('success', 'Password updated successfully');
+    }
+
+    public function updateAddress(Request $request, $id)
+    {
+        $address = Address::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($request->is_default) {
+            Address::where('user_id', Auth::id())->update(['is_default' => false]);
+        }
+
+        $request->validate([
+            'label' => ['nullable', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address_line_1' => ['nullable', 'string', 'max:255'],
+            'address_line_2' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'state' => ['nullable', 'string', 'max:255'],
+            'pincode' => ['nullable', 'string', 'max:20'],
+            'is_default' => ['nullable', 'boolean'],
+        ]);
+
+        $address->update($request->all());
+
+        return back()->with('success', 'Address updated successfully');
+    }
+
     public function orders()
     {
         $orders = Order::with('items')

@@ -5,7 +5,7 @@
 
 <div class="card product-card border-0 shadow-sm h-100">
     <div class="product-card-image position-relative overflow-hidden">
-        <a href="{{ route('product.show', $product->slug ?? $product->id) }}">
+        <a href="{{ route('products.show', $product->slug ?? $product->id) }}">
             <img src="{{ asset($product->images[0] ?? 'images/placeholder.jpg') }}"
                  alt="{{ $product->name }}"
                  class="card-img-top product-img-front"
@@ -59,7 +59,7 @@
         @endif
 
         <h6 class="product-name mb-1">
-            <a href="{{ route('product.show', $product->slug ?? $product->id) }}" class="text-decoration-none text-dark stretched-link">
+            <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="text-decoration-none text-dark stretched-link">
                 {{ $product->name }}
             </a>
         </h6>

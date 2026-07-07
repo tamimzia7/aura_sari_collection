@@ -42,19 +42,19 @@
                         <p class="text-muted small">{{ Auth::user()->email }}</p>
                     </div>
                     <div class="list-group list-group-flush dashboard-sidebar border-0">
-                        <a href="{{ route('account.dashboard') }}" class="list-group-item list-group-item-action border-0 nav-link active">
+                        <a href="{{ route('dashboard.index') }}" class="list-group-item list-group-item-action border-0 nav-link active">
                             <i class="fas fa-columns me-2"></i>Dashboard Overview
                         </a>
-                        <a href="{{ route('account.orders') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.orders') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-box me-2"></i>My Orders
                         </a>
-                        <a href="{{ route('account.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-heart me-2"></i>Wishlist
                         </a>
-                        <a href="{{ route('account.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-map-marker-alt me-2"></i>Addresses
                         </a>
-                        <a href="{{ route('account.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-user me-2"></i>Profile Settings
                         </a>
                         <a class="list-group-item list-group-item-action border-0 nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -126,7 +126,7 @@
                 <div class="card border-0 shadow-sm rounded-3 mb-4">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
                         <h6 class="fw-bold mb-0"><i class="fas fa-clock me-2"></i>Recent Orders</h6>
-                        <a href="{{ route('account.orders') }}" class="small text-decoration-none">View All <i class="fas fa-arrow-right ms-1"></i></a>
+                        <a href="{{ route('dashboard.orders') }}" class="small text-decoration-none">View All <i class="fas fa-arrow-right ms-1"></i></a>
                     </div>
                     <div class="card-body p-0">
                         @if(isset($recentOrders) && count($recentOrders) > 0)
@@ -161,7 +161,7 @@
                                                 </td>
                                                 <td class="fw-medium">₹{{ number_format($order->total, 2) }}</td>
                                                 <td class="text-end pe-4">
-                                                    <a href="{{ route('account.orders.details', $order->id) }}" class="btn btn-outline-dark btn-sm rounded-pill">View</a>
+                                                    <a href="{{ route('dashboard.order-details', $order->id) }}" class="btn btn-outline-dark btn-sm rounded-pill">View</a>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -193,7 +193,7 @@
                                         </div>
                                         <i class="fas fa-chevron-right ms-auto text-muted"></i>
                                     </a>
-                                    <a href="{{ route('account.orders') }}" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light bg-opacity-50">
+                                    <a href="{{ route('dashboard.orders') }}" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light bg-opacity-50">
                                         <i class="fas fa-box me-3 text-muted"></i>
                                         <div>
                                             <span class="fw-medium small">Track Orders</span>
@@ -201,7 +201,7 @@
                                         </div>
                                         <i class="fas fa-chevron-right ms-auto text-muted"></i>
                                     </a>
-                                    <a href="{{ route('account.wishlist') }}" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light bg-opacity-50">
+                                    <a href="{{ route('dashboard.wishlist') }}" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light bg-opacity-50">
                                         <i class="far fa-heart me-3 text-muted"></i>
                                         <div>
                                             <span class="fw-medium small">Wishlist</span>
@@ -209,7 +209,7 @@
                                         </div>
                                         <i class="fas fa-chevron-right ms-auto text-muted"></i>
                                     </a>
-                                    <a href="{{ route('account.profile') }}" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light bg-opacity-50">
+                                    <a href="{{ route('dashboard.profile') }}" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light bg-opacity-50">
                                         <i class="far fa-user me-3 text-muted"></i>
                                         <div>
                                             <span class="fw-medium small">Profile Settings</span>
@@ -236,11 +236,11 @@
                                         </div>
                                     @endforeach
                                     @if(count($addresses) > 2)
-                                        <a href="{{ route('account.addresses') }}" class="small text-decoration-none">+{{ count($addresses) - 2 }} more addresses</a>
+                                        <a href="{{ route('dashboard.addresses') }}" class="small text-decoration-none">+{{ count($addresses) - 2 }} more addresses</a>
                                     @endif
                                 @else
                                     <p class="text-muted small mb-3">No saved addresses yet.</p>
-                                    <a href="{{ route('account.addresses') }}" class="btn btn-outline-dark btn-sm rounded-pill">Add Address</a>
+                                    <a href="{{ route('dashboard.addresses') }}" class="btn btn-outline-dark btn-sm rounded-pill">Add Address</a>
                                 @endif
                             </div>
                         </div>

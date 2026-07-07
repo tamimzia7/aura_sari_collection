@@ -42,19 +42,19 @@
                         <p class="text-muted small">{{ Auth::user()->email }}</p>
                     </div>
                     <div class="list-group list-group-flush dashboard-sidebar border-0">
-                        <a href="{{ route('account.dashboard') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.index') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-columns me-2"></i>Dashboard Overview
                         </a>
-                        <a href="{{ route('account.orders') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.orders') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="fas fa-box me-2"></i>My Orders
                         </a>
-                        <a href="{{ route('account.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.wishlist') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-heart me-2"></i>Wishlist
                         </a>
-                        <a href="{{ route('account.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link active">
+                        <a href="{{ route('dashboard.addresses') }}" class="list-group-item list-group-item-action border-0 nav-link active">
                             <i class="fas fa-map-marker-alt me-2"></i>Addresses
                         </a>
-                        <a href="{{ route('account.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                        <a href="{{ route('dashboard.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-user me-2"></i>Profile Settings
                         </a>
                         <a class="list-group-item list-group-item-action border-0 nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -104,7 +104,7 @@
                                                     </li>
                                                     @if(!$address->is_default)
                                                         <li>
-                                                            <form method="POST" action="{{ route('account.addresses.default', $address->id) }}">
+                                                            <form method="POST" action="{{ route('dashboard.addresses.update', $address->id) }}">
                                                                 @csrf
                                                                 @method('PATCH')
                                                                 <button type="submit" class="dropdown-item small">
@@ -115,7 +115,7 @@
                                                     @endif
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li>
-                                                        <form method="POST" action="{{ route('account.addresses.destroy', $address->id) }}" onsubmit="return confirm('Are you sure you want to delete this address?')">
+                                                        <form method="POST" action="{{ route('dashboard.addresses.destroy', $address->id) }}" onsubmit="return confirm('Are you sure you want to delete this address?')">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dropdown-item small text-danger">
@@ -148,7 +148,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body p-4">
-                                            <form method="POST" action="{{ route('account.addresses.update', $address->id) }}">
+                                            <form method="POST" action="{{ route('dashboard.addresses.update', $address->id) }}">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="mb-3">
@@ -225,7 +225,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form method="POST" action="{{ route('account.addresses.store') }}">
+                <form method="POST" action="{{ route('dashboard.addresses.store') }}">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label small fw-medium">Label</label>

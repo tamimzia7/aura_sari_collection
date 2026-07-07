@@ -10,8 +10,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
@@ -33,8 +32,8 @@ Route::get('/products/quick-view/{id}', [ProductController::class, 'quickView'])
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
 
 // Cart
+Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::prefix('cart')->name('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
     Route::post('/update', [CartController::class, 'update'])->name('update');
     Route::post('/remove', [CartController::class, 'remove'])->name('remove');
@@ -43,8 +42,8 @@ Route::prefix('cart')->name('cart.')->group(function () {
 });
 
 // Wishlist (authenticated)
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 Route::prefix('wishlist')->name('wishlist.')->group(function () {
-    Route::get('/', [WishlistController::class, 'index'])->name('index');
     Route::post('/toggle', [WishlistController::class, 'add'])->name('toggle');
     Route::post('/remove', [WishlistController::class, 'remove'])->name('remove');
     Route::post('/move-to-cart', [WishlistController::class, 'moveToCart'])->name('move-to-cart');
@@ -61,6 +60,7 @@ Route::post('/logout', function () {
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
+
     return redirect('/');
 })->name('logout');
 
@@ -93,10 +93,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/orders/{id}', [DashboardController::class, 'orderDetails'])->name('order-details');
         Route::get('/addresses', [DashboardController::class, 'addresses'])->name('addresses');
         Route::post('/addresses', [DashboardController::class, 'storeAddress'])->name('addresses.store');
+        Route::match(['patch', 'put'], '/addresses/{id}', [DashboardController::class, 'updateAddress'])->name('addresses.update');
         Route::delete('/addresses/{id}', [DashboardController::class, 'destroyAddress'])->name('addresses.destroy');
         Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
-        Route::post('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
-        Route::post('/password', [DashboardController::class, 'updatePassword'])->name('password.update');
+        Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [DashboardController::class, 'updatePassword'])->name('password.update');
         Route::get('/wishlist', [DashboardController::class, 'wishlist'])->name('wishlist');
     });
 });
@@ -124,6 +125,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Coupons
     Route::resource('coupons', AdminCouponController::class);
+
+    // Reviews
+    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+    Route::delete('/reviews/{id}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // Settings
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');

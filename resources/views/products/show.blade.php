@@ -249,7 +249,7 @@
                 </li>
                 @if($product->category)
                     <li class="breadcrumb-item">
-                        <a href="{{ route('category.show', $product->category->slug ?? $product->category->id) }}">
+                        <a href="{{ route('products.index') }}">
                             {{ $product->category->name }}
                         </a>
                     </li>
@@ -632,7 +632,7 @@
             <section class="related-products mt-5 pt-3">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="fw-bold mb-0" style="font-family: 'Playfair Display', serif;">You May Also Like</h3>
-                    <a href="{{ $product->category ? route('category.show', $product->category->slug ?? $product->category->id) : '#' }}" class="text-decoration-none small fw-semibold" style="color: #d4af37;">
+                    <a href="{{ $product->category ? route('products.index'), $product->category->slug ?? $product->category->id) : '#' }}" class="text-decoration-none small fw-semibold" style="color: #d4af37;">
                         View All <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
