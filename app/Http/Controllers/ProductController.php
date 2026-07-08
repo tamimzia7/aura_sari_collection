@@ -14,32 +14,64 @@ class ProductController extends Controller
         $query = Product::with(['category', 'brand', 'images'])
             ->where('status', true);
 
-        if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
-            });
+        // Category filter (supports multiple via category[] array)
+        if ($request->has('category')) {
+            $categories = (array) $request->input('category', []);
+            $categories = array_filter($categories);
+            if (!empty($categories)) {
+                $query->whereHas('category', function ($q) use ($categories) {
+                    $q->whereIn('slug', $categories);
+                });
+            }
         }
 
-        if ($request->filled('color')) {
-            $query->where('color', $request->color);
+        // Color filter (supports multiple via color[] array)
+        if ($request->has('color')) {
+            $colors = (array) $request->input('color', []);
+            $colors = array_filter($colors);
+            if (!empty($colors)) {
+                $query->whereIn('color', $colors);
+            }
         }
 
-        if ($request->filled('fabric')) {
-            $query->where('fabric', $request->fabric);
+        // Fabric filter (supports multiple via fabric[] array)
+        if ($request->has('fabric')) {
+            $fabrics = (array) $request->input('fabric', []);
+            $fabrics = array_filter($fabrics);
+            if (!empty($fabrics)) {
+                $query->whereIn('fabric', $fabrics);
+            }
         }
 
-        if ($request->filled('occasion')) {
-            $query->where('occasion', $request->occasion);
+        // Occasion filter (supports multiple via occasion[] array)
+        if ($request->has('occasion')) {
+            $occasions = (array) $request->input('occasion', []);
+            $occasions = array_filter($occasions);
+            if (!empty($occasions)) {
+                $query->whereIn('occasion', $occasions);
+            }
         }
 
+        // Price range filter - uses discounted_price logic
         if ($request->filled('price_range')) {
             [$min, $max] = explode('-', $request->price_range);
+            $min = (float) $min;
+            $max = (float) $max;
+
             $query->where(function ($q) use ($min, $max) {
-                $q->whereBetween('price', [(float) $min, (float) $max])
-                    ->orWhereBetween('discount_price', [(float) $min, (float) $max]);
+                $q->where(function ($sub) use ($min, $max) {
+                    $sub->whereNotNull('discount_price')
+                        ->where('discount_price', '>=', $min)
+                        ->where('discount_price', '<=', $max);
+                })->orWhere(function ($sub) use ($min, $max) {
+                    $sub->whereNull('discount_price')
+                        ->where('price', '>=', $min)
+                        ->where('price', '<=', $max);
+                });
             });
         }
 
+        // Special filters
         if ($request->boolean('featured')) {
             $query->where('is_featured', true);
         }
@@ -52,6 +84,16 @@ class ProductController extends Controller
             $query->where('is_best_selling', true);
         }
 
+        // Availability filter
+        if ($request->filled('availability')) {
+            if ($request->availability === 'in_stock') {
+                $query->where('stock_quantity', '>', 0);
+            } elseif ($request->availability === 'out_of_stock') {
+                $query->where('stock_quantity', '<=', 0);
+            }
+        }
+
+        // Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -65,10 +107,11 @@ class ProductController extends Controller
             });
         }
 
+        // Sorting
         $sort = $request->sort;
         match ($sort) {
-            'price_low' => $query->orderBy('price'),
-            'price_high' => $query->orderByDesc('price'),
+            'price_low' => $query->orderByRaw('COALESCE(discount_price, price) ASC'),
+            'price_high' => $query->orderByRaw('COALESCE(discount_price, price) DESC'),
             'newest' => $query->latest(),
             'rating' => $query->withAvg('reviews', 'rating')->orderByDesc('reviews_avg_rating'),
             'popularity' => $query->withCount('wishlists')->orderByDesc('wishlists_count'),

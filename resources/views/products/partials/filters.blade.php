@@ -168,6 +168,34 @@
         </div>
     </div>
 
+    <!-- Availability -->
+    <div class="filter-section mb-4">
+        <h6 class="filter-title d-flex align-items-center justify-content-between mb-3">
+            <span class="fw-semibold text-uppercase small ls-1">Availability</span>
+            <span class="filter-toggle" data-bs-toggle="collapse" data-bs-target="#filterAvailability" role="button">
+                <i class="fas fa-chevron-up small text-muted"></i>
+            </span>
+        </h6>
+        <div class="collapse show" id="filterAvailability">
+            <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox"
+                       name="availability" value="in_stock" id="filter-in-stock"
+                       {{ request('availability') === 'in_stock' ? 'checked' : '' }}>
+                <label class="form-check-label small" for="filter-in-stock">
+                    <i class="fas fa-check-circle text-success me-1 small"></i> In Stock
+                </label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox"
+                       name="availability" value="out_of_stock" id="filter-out-of-stock"
+                       {{ request('availability') === 'out_of_stock' ? 'checked' : '' }}>
+                <label class="form-check-label small" for="filter-out-of-stock">
+                    <i class="fas fa-times-circle text-danger me-1 small"></i> Out of Stock
+                </label>
+            </div>
+        </div>
+    </div>
+
     <!-- Special Filters -->
     <div class="filter-section mb-4">
         <h6 class="filter-title d-flex align-items-center justify-content-between mb-3">

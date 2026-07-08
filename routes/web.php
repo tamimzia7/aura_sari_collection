@@ -8,9 +8,10 @@ use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
@@ -51,8 +52,10 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
 
 // Auth routes
 Route::middleware('guest')->group(function () {
-    Route::view('/login', 'auth.login')->name('login');
-    Route::view('/register', 'auth.register')->name('register');
+    Route::get('/login', fn () => view('auth.login'))->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', fn () => view('auth.register'))->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
     Route::view('/forgot-password', 'auth.passwords.email')->name('password.request');
 });
 

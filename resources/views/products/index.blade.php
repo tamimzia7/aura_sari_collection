@@ -351,19 +351,25 @@ body {
                 <div id="product-grid-wrapper">
                     <div id="product-grid" class="row product-grid g-3 @if(request('view') === 'list') list-view @endif">
                         @forelse($products as $product)
+                            @php
+                                $primaryImg = $product->images[0]->image_path ?? 'images/placeholder.jpg';
+                                $hoverImg = $product->images[1]->image_path ?? null;
+                            @endphp
                             <div class="col-xl-3 col-lg-4 col-md-6 col-6">
                                 <div class="shop-product-card">
                                     <div class="product-card-image position-relative overflow-hidden">
                                         <a href="{{ route('products.show', $product->slug ?? $product->id) }}">
-                                            <img src="{{ asset($product->images[0] ?? 'images/placeholder.jpg') }}"
+                                            <img src="{{ asset($primaryImg) }}"
                                                  alt="{{ $product->name }}"
                                                  class="product-img-front w-100"
-                                                 loading="lazy">
-                                            @if(isset($product->images[1]))
-                                                <img src="{{ asset($product->images[1]) }}"
+                                                 loading="lazy"
+                                                 onerror="this.src='https://placehold.co/300x400?text=No+Image'">
+                                            @if($hoverImg)
+                                                <img src="{{ asset($hoverImg) }}"
                                                      alt="{{ $product->name }}"
                                                      class="product-img-hover position-absolute top-0 start-0 w-100"
-                                                     loading="lazy">
+                                                     loading="lazy"
+                                                     onerror="this.style.display='none'">
                                             @endif
                                         </a>
 
@@ -444,7 +450,7 @@ body {
 
                                         <div class="product-price mt-auto pt-2 d-flex align-items-center gap-2">
                                             @if($product->discount_price)
-                                                <span class="fw-bold" style="color: var(--aura-primary); font-size: 1.05rem;">₹{{ number_format($product->discount_price, 0) }}</span>
+                                                <span class="fw-bold" style="color: var(--aura-primary); font-size: 1.05rem;">₹{{ number_format($product->discounted_price, 0) }}</span>
                                                 <span class="text-muted text-decoration-line-through small">₹{{ number_format($product->price, 0) }}</span>
                                             @else
                                                 <span class="fw-bold" style="color: var(--aura-primary); font-size: 1.05rem;">₹{{ number_format($product->price, 0) }}</span>
@@ -472,8 +478,8 @@ body {
                                             <button class="btn btn-dark btn-sm w-100 rounded-pill add-to-cart-btn d-flex align-items-center justify-content-center gap-1 py-2 quick-add-btn"
                                                     data-product-id="{{ $product->id }}"
                                                     data-product-name="{{ $product->name }}"
-                                                    data-product-price="{{ $product->discount_price ?? $product->price }}"
-                                                    data-product-image="{{ asset($product->images[0] ?? 'images/placeholder.jpg') }}">
+                                                    data-product-price="{{ $product->discounted_price }}"
+                                                    data-product-image="{{ asset($primaryImg) }}">
                                                 <i class="fas fa-shopping-bag"></i>
                                                 <span>Add to Cart</span>
                                             </button>
@@ -573,21 +579,21 @@ $(function() {
     function collectParams(page) {
         const params = new URLSearchParams();
 
-        // Categories
+        // Categories (use [] suffix for array params)
         $('input[name="categories[]"]:checked').each(function() {
-            params.append('category', $(this).val());
+            params.append('category[]', $(this).val());
         });
         // Colors
         $('input[name="colors[]"]:checked').each(function() {
-            params.append('color', $(this).val());
+            params.append('color[]', $(this).val());
         });
         // Fabrics
         $('input[name="fabrics[]"]:checked').each(function() {
-            params.append('fabric', $(this).val());
+            params.append('fabric[]', $(this).val());
         });
         // Occasions
         $('input[name="occasions[]"]:checked').each(function() {
-            params.append('occasion', $(this).val());
+            params.append('occasion[]', $(this).val());
         });
 
         // Price range
@@ -925,7 +931,7 @@ $(function() {
         $btn.prop('disabled', true);
 
         $.ajax({
-            url: wasActive ? '/wishlist/remove' : '/wishlist/add',
+            url: wasActive ? '/wishlist/remove' : '/wishlist/toggle',
             type: 'POST',
             data: {
                 product_id: productId,

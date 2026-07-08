@@ -3,18 +3,27 @@
     'inWishlist' => false,
 ])
 
+@php
+    $primaryImage = $product->images[0]->image_path ?? 'images/placeholder.jpg';
+    $hoverImage = $product->images[1]->image_path ?? null;
+    $brandName = $product->brand->name ?? '';
+    $stock = $product->stock_quantity ?? 0;
+@endphp
+
 <div class="card product-card border-0 shadow-sm h-100">
     <div class="product-card-image position-relative overflow-hidden">
         <a href="{{ route('products.show', $product->slug ?? $product->id) }}">
-            <img src="{{ asset($product->images[0] ?? 'images/placeholder.jpg') }}"
+            <img src="{{ asset($primaryImage) }}"
                  alt="{{ $product->name }}"
                  class="card-img-top product-img-front"
-                 loading="lazy">
-            @if(isset($product->images[1]))
-                <img src="{{ asset($product->images[1]) }}"
+                 loading="lazy"
+                 onerror="this.src='https://placehold.co/300x400?text=No+Image'">
+            @if($hoverImage)
+                <img src="{{ asset($hoverImage) }}"
                      alt="{{ $product->name }}"
                      class="card-img-top product-img-hover position-absolute top-0 start-0"
-                     loading="lazy">
+                     loading="lazy"
+                     onerror="this.style.display='none'">
             @endif
         </a>
 
@@ -36,26 +45,26 @@
             </button>
         </div>
 
-        @if($product->discount_percentage ?? false)
+        @if($product->discount_percentage)
             <span class="position-absolute top-0 start-0 badge bg-danger m-2">
                 -{{ $product->discount_percentage }}%
             </span>
         @endif
 
-        @if(($product->stock ?? 0) < 1)
+        @if($stock < 1)
             <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white text-center py-1 small">
                 Out of Stock
             </div>
-        @elseif(($product->stock ?? 0) <= 5 && ($product->stock ?? 0) > 0)
+        @elseif($stock <= 5)
             <div class="position-absolute bottom-0 start-0 w-100 bg-warning bg-opacity-75 text-dark text-center py-1 small">
-                Only {{ $product->stock }} left
+                Only {{ $stock }} left
             </div>
         @endif
     </div>
 
     <div class="card-body d-flex flex-column">
-        @if($product->brand ?? false)
-            <p class="product-brand small text-muted text-uppercase mb-1">{{ $product->brand }}</p>
+        @if($brandName)
+            <p class="product-brand small text-muted text-uppercase mb-1">{{ $brandName }}</p>
         @endif
 
         <h6 class="product-name mb-1">
@@ -74,8 +83,8 @@
         @endif
 
         <div class="product-price mt-auto pt-2 d-flex align-items-center gap-2">
-            @if($product->discount_price ?? false)
-                <span class="fw-bold text-dark">₹{{ number_format($product->discount_price, 0) }}</span>
+            @if($product->discount_price)
+                <span class="fw-bold text-dark">₹{{ number_format($product->discounted_price, 0) }}</span>
                 <span class="text-muted text-decoration-line-through small">₹{{ number_format($product->price, 0) }}</span>
             @else
                 <span class="fw-bold text-dark">₹{{ number_format($product->price, 0) }}</span>
@@ -84,12 +93,12 @@
     </div>
 
     <div class="card-footer bg-white border-0 pt-0 px-3 pb-3">
-        @if(($product->stock ?? 0) > 0)
+        @if($stock > 0)
             <button class="btn btn-dark btn-sm w-100 rounded-pill add-to-cart-btn"
                     data-product-id="{{ $product->id }}"
                     data-product-name="{{ $product->name }}"
-                    data-product-price="{{ $product->discount_price ?? $product->price }}"
-                    data-product-image="{{ asset($product->images[0] ?? 'images/placeholder.jpg') }}">
+                    data-product-price="{{ $product->discounted_price }}"
+                    data-product-image="{{ asset($primaryImage) }}">
                 <i class="fas fa-shopping-bag me-1"></i> Add to Cart
             </button>
         @else

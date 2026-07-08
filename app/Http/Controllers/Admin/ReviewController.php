@@ -19,7 +19,7 @@ class ReviewController extends Controller
     public function approve($id)
     {
         $review = Review::findOrFail($id);
-        $review->update(['is_approved' => !$review->is_approved]);
+        $review->update(['is_approved' => ! $review->is_approved]);
 
         return back()->with('success', 'Review status updated successfully');
     }
