@@ -1054,10 +1054,25 @@
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                <a href="#productsSubmenu" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.products.*') ? 'true' : 'false' }}">
                     <i class="fas fa-tshirt"></i>
                     <span>Products</span>
+                    <i class="fas fa-chevron-right arrow"></i>
                 </a>
+                <ul class="sub-menu collapse {{ request()->routeIs('admin.products.*') ? 'show' : '' }}" id="productsSubmenu">
+                    <li>
+                        <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.index') && !request()->routeIs('admin.products.create') ? 'active' : '' }}">
+                            <i class="fas fa-list"></i>
+                            <span>All Products</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.products.create') }}" class="nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Product</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
 
             <div class="nav-item">
@@ -1104,6 +1119,13 @@
             </div>
 
             <div class="nav-item">
+                <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+                    <i class="fas fa-percent"></i>
+                    <span>Coupons</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
                 <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
                     <i class="fas fa-images"></i>
                     <span>Banners</span>
@@ -1113,9 +1135,23 @@
             <div class="nav-label">System</div>
 
             <div class="nav-item">
+                <a href="{{ route('admin.reports') }}" class="nav-link {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
                 <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="{{ route('dashboard.profile') }}" class="nav-link {{ request()->routeIs('dashboard.profile') ? 'active' : '' }}">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
                 </a>
             </div>
 

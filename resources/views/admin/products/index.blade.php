@@ -8,7 +8,7 @@
         <h4>Products</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
                 <li class="breadcrumb-item active">Products</li>
             </ol>
         </nav>
@@ -23,7 +23,7 @@
 <div class="card">
     <div class="card-body">
         <form method="GET" action="{{ route('admin.products.index') }}" class="row g-3 mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="search-box" style="position:relative;width:100%;">
                     <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#adb5bd;font-size:14px;"></i>
                     <input type="text" name="search" class="form-control" placeholder="Search products..." style="padding-left:40px;" value="{{ request('search') }}">
@@ -38,10 +38,10 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select name="brand" class="form-select">
-                    <option value="">All Brands</option>
-                    @foreach($brands ?? [] as $b)
-                        <option value="{{ $b->id }}" {{ request('brand') == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
+                <select name="collection" class="form-select">
+                    <option value="">All Collections</option>
+                    @foreach($collections ?? [] as $col)
+                        <option value="{{ $col->id }}" {{ request('collection') == $col->id ? 'selected' : '' }}>{{ $col->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -50,6 +50,14 @@
                     <option value="">All Status</option>
                     <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
                     <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <select name="stock" class="form-select">
+                    <option value="">Stock</option>
+                    <option value="in_stock" {{ request('stock') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                    <option value="out_of_stock" {{ request('stock') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                    <option value="low" {{ request('stock') === 'low' ? 'selected' : '' }}>Low Stock</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -63,12 +71,13 @@
                     <tr>
                         <th style="width:60px;">Image</th>
                         <th>Name</th>
-                        <th>SKU</th>
                         <th>Category</th>
+                        <th>Collection</th>
                         <th>Price</th>
                         <th>Stock</th>
                         <th>Status</th>
-                        <th style="width:120px;">Actions</th>
+                        <th>Created</th>
+                        <th style="width:140px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,10 +91,13 @@
                             </div>
                         </td>
                         <td>
-                            <a href="{{ route('admin.products.edit', $product) }}" class="text-decoration-none fw-semibold" style="color:var(--sidebar-bg);">{{ $product->name }}</a>
+                            <a href="{{ route('admin.products.show', $product) }}" class="text-decoration-none fw-semibold" style="color:var(--sidebar-bg);">{{ $product->name }}</a>
+                            @if($product->product_code)
+                                <br><span style="font-size:11px;color:#9ca3af;">{{ $product->product_code }}</span>
+                            @endif
                         </td>
-                        <td><span style="font-size:13px;color:#6c757d;">{{ $product->sku }}</span></td>
                         <td><span style="font-size:13px;">{{ $product->category?->name }}</span></td>
+                        <td><span style="font-size:13px;">{{ $product->collection?->name ?? '—' }}</span></td>
                         <td class="fw-semibold">
                             @if($product->discount_price)
                                 <span class="text-muted text-decoration-line-through small">₹{{ number_format($product->price, 0) }}</span>
@@ -110,12 +122,18 @@
                                 <span class="badge-status inactive">Inactive</span>
                             @endif
                         </td>
+                        <td style="font-size:13px;color:#6c757d;white-space:nowrap;">
+                            {{ $product->created_at->format('M j, Y') }}
+                        </td>
                         <td>
                             <div class="action-btns">
+                                <a href="{{ route('admin.products.show', $product) }}" class="btn btn-soft-primary btn-sm" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                                 <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-soft-primary btn-sm" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button class="btn btn-soft-danger btn-sm" title="Delete" onclick="confirmDelete('{{ $product->name }}', {{ $product->id }})">
+                                <button class="btn btn-soft-danger btn-sm" title="Delete" onclick="confirmDelete('{{ addslashes($product->name) }}', {{ $product->id }})">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -127,7 +145,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-5">
+                        <td colspan="9" class="text-center py-5">
                             <i class="fas fa-box-open" style="font-size:3rem;color:#ddd;"></i>
                             <p class="mt-3 text-muted">No products found</p>
                         </td>

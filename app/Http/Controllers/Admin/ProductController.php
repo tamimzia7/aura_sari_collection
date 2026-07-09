@@ -17,18 +17,23 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand']);
+        $query = Product::with(['category', 'collection', 'brand']);
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('product_code', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
+        }
+
+        if ($request->filled('collection')) {
+            $query->where('collection_id', $request->collection);
         }
 
         if ($request->filled('brand')) {
@@ -39,12 +44,30 @@ class ProductController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('stock')) {
+            if ($request->stock === 'in_stock') {
+                $query->where('stock_quantity', '>', 0);
+            } elseif ($request->stock === 'out_of_stock') {
+                $query->where('stock_quantity', '=', 0);
+            } elseif ($request->stock === 'low') {
+                $query->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 5);
+            }
+        }
+
         $products = $query->latest()->paginate(20)->withQueryString();
 
         $categories = Category::where('status', true)->orderBy('sort_order')->get();
+        $collections = Collection::where('status', true)->orderBy('sort_order')->get();
         $brands = Brand::where('status', true)->get();
 
-        return view('admin.products.index', compact('products', 'categories', 'brands'));
+        return view('admin.products.index', compact('products', 'categories', 'collections', 'brands'));
+    }
+
+    public function show(Product $product)
+    {
+        $product->load(['category', 'collection', 'brand', 'images']);
+
+        return view('admin.products.show', compact('product'));
     }
 
     public function create()
@@ -65,7 +88,21 @@ class ProductController extends Controller
         $data['is_trending'] = $request->boolean('is_trending');
         $data['status'] = $request->boolean('status', true);
 
+        if (empty($data['product_code'])) {
+            $data['product_code'] = 'PRD-'.strtoupper(substr(md5(uniqid()), 0, 6));
+        }
+
         $product = Product::create($data);
+
+        if ($request->hasFile('main_image')) {
+            $path = $request->file('main_image')->store('products', 'public');
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => 'storage/'.$path,
+                'is_primary' => true,
+                'sort_order' => 0,
+            ]);
+        }
 
         if ($request->hasFile('images')) {
             $files = is_array($request->file('images')) ? $request->file('images') : [$request->file('images')];
@@ -73,10 +110,12 @@ class ProductController extends Controller
             foreach ($files as $index => $image) {
                 $path = $image->store('products', 'public');
 
+                $isPrimary = ! $request->hasFile('main_image') && $index === 0;
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => 'storage/'.$path,
-                    'is_primary' => $index === 0,
+                    'is_primary' => $isPrimary,
                     'sort_order' => $index + 1,
                 ]);
             }
@@ -108,6 +147,26 @@ class ProductController extends Controller
 
         $product->update($data);
 
+        $primaryImage = $product->images()->where('is_primary', true)->first();
+
+        if ($request->hasFile('main_image')) {
+            if ($primaryImage) {
+                $relativePath = str_replace('storage/', '', $primaryImage->image_path);
+                if (Storage::disk('public')->exists($relativePath)) {
+                    Storage::disk('public')->delete($relativePath);
+                }
+                $primaryImage->delete();
+            }
+
+            $path = $request->file('main_image')->store('products', 'public');
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => 'storage/'.$path,
+                'is_primary' => true,
+                'sort_order' => 0,
+            ]);
+        }
+
         if ($request->hasFile('images')) {
             $existingCount = $product->images()->count();
             $files = is_array($request->file('images')) ? $request->file('images') : [$request->file('images')];
@@ -115,10 +174,12 @@ class ProductController extends Controller
             foreach ($files as $index => $image) {
                 $path = $image->store('products', 'public');
 
+                $isPrimary = ! $request->hasFile('main_image') && ! $primaryImage && $index === 0;
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => 'storage/'.$path,
-                    'is_primary' => $existingCount === 0 && $index === 0,
+                    'is_primary' => $isPrimary,
                     'sort_order' => $existingCount + $index + 1,
                 ]);
             }

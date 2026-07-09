@@ -139,35 +139,63 @@
             </div>
 
             <div class="card">
-                <div class="card-header">Product Images</div>
+                <div class="card-header">Main Product Image</div>
                 <div class="card-body">
-                    @if($product->images->count() > 0)
-                        <div class="image-preview mb-3" id="existingImages">
-                            @foreach($product->images as $image)
-                                <div class="preview-item" data-image-id="{{ $image->id }}">
-                                    <img src="{{ asset($image->image_path) }}" alt="Product Image" onerror="this.src='https://placehold.co/150x150?text=No+Image'">
-                                    <button type="button" class="remove-btn" onclick="removeExistingImage(this, {{ $image->id }})" title="Remove image">
+                    @php $mainImage = $product->images->where('is_primary', true)->first(); @endphp
+                    @if($mainImage)
+                        <div class="mb-3">
+                            <label class="form-label">Current Main Image</label>
+                            <div class="image-preview" id="existingMainImage">
+                                <div class="preview-item">
+                                    <img src="{{ asset($mainImage->image_path) }}" alt="Main Image">
+                                    <button type="button" class="remove-btn" onclick="removeMainImage({{ $mainImage->id }})" title="Remove image">
                                         <i class="fas fa-times"></i>
                                     </button>
-                                    @if($image->is_primary)
-                                        <span class="badge bg-warning text-dark" style="position:absolute;bottom:4px;left:4px;font-size:10px;">Primary</span>
-                                    @else
-                                        <button type="button" class="badge bg-secondary" style="position:absolute;bottom:4px;left:4px;font-size:10px;cursor:pointer;border:none;" onclick="setPrimary({{ $image->id }}, this)" title="Set as primary">Set Primary</button>
-                                    @endif
+                                    <span class="badge bg-warning text-dark" style="position:absolute;bottom:4px;left:4px;font-size:10px;">Primary</span>
                                 </div>
-                            @endforeach
+                            </div>
                         </div>
                         <input type="hidden" name="remove_images" id="removeImagesInput" value="">
-                        <input type="hidden" name="primary_image_id" id="primaryImageInput" value="">
                     @endif
 
-                    <div class="image-upload-wrapper" onclick="document.getElementById('productImages').click()">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p><strong>Click to upload</strong> or drag and drop more images</p>
-                        <p style="font-size:12px;color:#9ca3af;">PNG, JPG, WEBP up to 5MB each</p>
-                        <input type="file" name="images[]" id="productImages" multiple accept="image/*" style="display:none;" onchange="handleImagePreview(this)">
+                    <div class="image-upload-wrapper" onclick="document.getElementById('mainImage').click()">
+                        <i class="fas fa-camera"></i>
+                        <p><strong>Click to {{ $mainImage ? 'replace' : 'upload' }} main image</strong></p>
+                        <p style="font-size:12px;color:#9ca3af;">PNG, JPG, WEBP up to 5MB</p>
+                        <input type="file" name="main_image" id="mainImage" accept="image/*" style="display:none;" onchange="handleSingleImagePreview(this)">
                     </div>
-                    <div class="image-preview" id="newImagePreview"></div>
+                    <div class="image-preview" id="mainImagePreview"></div>
+                    @error('main_image') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Gallery Images</div>
+                <div class="card-body">
+                    @php $galleryImages = $product->images->where('is_primary', false); @endphp
+                    @if($galleryImages->count() > 0)
+                        <div class="mb-3">
+                            <label class="form-label">Current Gallery Images</label>
+                            <div class="image-preview" id="existingGallery">
+                                @foreach($galleryImages as $image)
+                                    <div class="preview-item" data-image-id="{{ $image->id }}">
+                                        <img src="{{ asset($image->image_path) }}" alt="Gallery Image">
+                                        <button type="button" class="remove-btn" onclick="removeGalleryImage(this, {{ $image->id }})" title="Remove image">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="image-upload-wrapper" onclick="document.getElementById('galleryImages').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p><strong>Click to upload</strong> or drag and drop gallery images</p>
+                        <p style="font-size:12px;color:#9ca3af;">PNG, JPG, WEBP up to 5MB each</p>
+                        <input type="file" name="images[]" id="galleryImages" multiple accept="image/*" style="display:none;" onchange="handleGalleryPreview(this)">
+                    </div>
+                    <div class="image-preview" id="galleryPreview"></div>
                     @error('images') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
                     @error('images.*') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
                 </div>
@@ -292,8 +320,28 @@
 <script>
 let imagesToRemove = [];
 
-function handleImagePreview(input) {
-    const preview = document.getElementById('newImagePreview');
+function handleSingleImagePreview(input) {
+    const existing = document.getElementById('existingMainImage');
+    if (existing) existing.innerHTML = '';
+    const preview = document.getElementById('mainImagePreview');
+    preview.innerHTML = '';
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `
+                <img src="${e.target.result}" alt="Main Image Preview">
+                <span class="badge bg-warning text-dark" style="position:absolute;bottom:4px;left:4px;font-size:10px;">Primary</span>
+            `;
+            preview.appendChild(item);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function handleGalleryPreview(input) {
+    const preview = document.getElementById('galleryPreview');
     if (input.files) {
         Array.from(input.files).forEach(file => {
             const reader = new FileReader();
@@ -301,7 +349,7 @@ function handleImagePreview(input) {
                 const item = document.createElement('div');
                 item.className = 'preview-item';
                 item.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
+                    <img src="${e.target.result}" alt="Gallery Preview">
                     <button type="button" class="remove-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                 `;
                 preview.appendChild(item);
@@ -311,33 +359,16 @@ function handleImagePreview(input) {
     }
 }
 
-function removeExistingImage(btn, imageId) {
+function removeMainImage(imageId) {
+    imagesToRemove.push(imageId);
+    document.getElementById('removeImagesInput').value = imagesToRemove.join(',');
+    document.getElementById('existingMainImage').innerHTML = '';
+}
+
+function removeGalleryImage(btn, imageId) {
     btn.closest('.preview-item').remove();
     imagesToRemove.push(imageId);
     document.getElementById('removeImagesInput').value = imagesToRemove.join(',');
-}
-
-function setPrimary(imageId, btnElement) {
-    document.querySelectorAll('#existingImages .preview-item').forEach(el => {
-        const badges = el.querySelectorAll('.badge');
-        badges.forEach(b => {
-            if (b.textContent === 'Primary' || b.textContent === 'Set Primary') {
-                b.textContent = 'Set Primary';
-                b.className = 'badge bg-secondary';
-                b.style.cssText = 'position:absolute;bottom:4px;left:4px;font-size:10px;cursor:pointer;border:none;';
-                const pid = el.dataset.imageId;
-                b.onclick = function() { setPrimary(pid, this); };
-            }
-        });
-    });
-
-    const btn = btnElement;
-    btn.textContent = 'Primary';
-    btn.className = 'badge bg-warning text-dark';
-    btn.style.cssText = 'position:absolute;bottom:4px;left:4px;font-size:10px;';
-    btn.onclick = null;
-
-    document.getElementById('primaryImageInput').value = imageId;
 }
 
 function confirmDelete() {

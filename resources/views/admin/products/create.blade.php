@@ -138,15 +138,29 @@
             </div>
 
             <div class="card">
-                <div class="card-header">Product Images</div>
+                <div class="card-header">Main Product Image</div>
                 <div class="card-body">
-                    <div class="image-upload-wrapper" onclick="document.getElementById('productImages').click()">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p><strong>Click to upload</strong> or drag and drop</p>
-                        <p style="font-size:12px;color:#9ca3af;">PNG, JPG, WEBP up to 5MB each</p>
-                        <input type="file" name="images[]" id="productImages" multiple accept="image/*" style="display:none;" onchange="handleImagePreview(this)">
+                    <div class="image-upload-wrapper" onclick="document.getElementById('mainImage').click()">
+                        <i class="fas fa-camera"></i>
+                        <p><strong>Click to upload main image</strong></p>
+                        <p style="font-size:12px;color:#9ca3af;">PNG, JPG, WEBP up to 5MB</p>
+                        <input type="file" name="main_image" id="mainImage" accept="image/*" style="display:none;" onchange="handleSingleImagePreview(this)">
                     </div>
-                    <div class="image-preview" id="imagePreview"></div>
+                    <div class="image-preview" id="mainImagePreview"></div>
+                    @error('main_image') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Gallery Images</div>
+                <div class="card-body">
+                    <div class="image-upload-wrapper" onclick="document.getElementById('galleryImages').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p><strong>Click to upload gallery images</strong> or drag and drop</p>
+                        <p style="font-size:12px;color:#9ca3af;">PNG, JPG, WEBP up to 5MB each</p>
+                        <input type="file" name="images[]" id="galleryImages" multiple accept="image/*" style="display:none;" onchange="handleGalleryPreview(this)">
+                    </div>
+                    <div class="image-preview" id="galleryPreview"></div>
                     @error('images') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
                     @error('images.*') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
                 </div>
@@ -250,7 +264,10 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-1"></i> Save Product
                         </button>
-                        <a href="{{ route('admin.products.index') }}" class="btn btn-light">Cancel</a>
+                        <button type="reset" class="btn btn-light">
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </button>
+                        <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">Cancel</a>
                     </div>
                 </div>
             </div>
@@ -261,10 +278,26 @@
 
 @push('scripts')
 <script>
-function handleImagePreview(input) {
-    const preview = document.getElementById('imagePreview');
+function handleSingleImagePreview(input) {
+    const preview = document.getElementById('mainImagePreview');
     preview.innerHTML = '';
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `
+                <img src="${e.target.result}" alt="Main Image Preview">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove(); document.getElementById('mainImage').value = '';"><i class="fas fa-times"></i></button>
+            `;
+            preview.appendChild(item);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
+function handleGalleryPreview(input) {
+    const preview = document.getElementById('galleryPreview');
     if (input.files) {
         Array.from(input.files).forEach(file => {
             const reader = new FileReader();
@@ -272,7 +305,7 @@ function handleImagePreview(input) {
                 const item = document.createElement('div');
                 item.className = 'preview-item';
                 item.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
+                    <img src="${e.target.result}" alt="Gallery Preview">
                     <button type="button" class="remove-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                 `;
                 preview.appendChild(item);
