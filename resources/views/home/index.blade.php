@@ -74,6 +74,19 @@ body {
   transition: color 0.3s, transform 0.3s;
 }
 .aura-nav-icons a:hover { color: var(--aura-gold); transform: scale(1.15); }
+.aura-nav-icons a i.fa-shopping-bag {
+  font-size: 50px;
+  line-height: 1;
+  background: linear-gradient(135deg, #D4AF37, #F7E7A1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(212,175,55,0.3));
+  transition: filter 0.3s ease;
+}
+.aura-nav-icons a:hover i.fa-shopping-bag {
+  filter: drop-shadow(0 0 14px rgba(212,175,55,0.6));
+}
 
 /* ─── HERO ─── */
 #hero-section {
