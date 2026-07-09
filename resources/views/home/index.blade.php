@@ -159,10 +159,10 @@ body {
 
 /* Right Floating Product Card */
 .floating-product-card {
-  position: fixed;
-  right: 30px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
+  margin-right: auto;
+  margin-left: 2rem;
+  margin-top: -100px;
   z-index: 100;
   width: 240px;
   padding: 1.75rem;
@@ -175,7 +175,7 @@ body {
   transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s;
 }
 .floating-product-card:hover {
-  transform: translateY(-50%) scale(1.02);
+  transform: scale(1.02);
   box-shadow: 0 0 40px rgba(212,175,55,0.1);
 }
 .floating-product-card .card-label {
@@ -305,7 +305,7 @@ body {
 /* Mini Cart Preview */
 .mini-cart-preview {
   position: fixed;
-  bottom: 100px; right: 30px;
+  bottom: 200px; right: 30px;
   width: 300px;
   background: rgba(10,10,26,0.92);
   backdrop-filter: blur(30px);
@@ -314,14 +314,6 @@ body {
   border-radius: 16px;
   padding: 1.5rem;
   z-index: 98;
-  transform: scale(0.9) translateY(20px);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-}
-.mini-cart-preview.active {
-  transform: scale(1) translateY(0);
-  opacity: 1;
   pointer-events: auto;
 }
 .mini-cart-preview h4 {
@@ -365,9 +357,12 @@ body {
 .mini-cart-preview .cart-total span:last-child {
   color: var(--aura-gold); font-weight: 700;
 }
-.mini-cart-preview .btn-view-cart {
-  display: block; width: 100%;
-  padding: 0.6rem; margin-top: 0.75rem;
+.btn-view-cart {
+  position: fixed;
+  bottom: 190px; right: 30px;
+  z-index: 99;
+  display: block; width: 300px;
+  padding: 0.6rem;
   text-align: center;
   background: rgba(212,175,55,0.1);
   border: 1px solid rgba(212,175,55,0.2);
@@ -378,7 +373,7 @@ body {
   text-decoration: none;
   transition: all 0.3s;
 }
-.mini-cart-preview .btn-view-cart:hover {
+.btn-view-cart:hover {
   background: rgba(212,175,55,0.2);
   box-shadow: 0 0 20px rgba(212,175,55,0.15);
 }
@@ -668,7 +663,7 @@ footer {
   .newsletter-form-group { flex-direction: column; }
 }
 @media (max-width: 1024px) and (min-width: 769px) {
-  .floating-product-card { width: 200px; right: 20px; }
+  .floating-product-card { width: 200px; margin-left: 1.5rem; }
 }
 </style>
 @endpush
@@ -699,33 +694,32 @@ footer {
       <p class="hero-subtitle" id="heroSubtitle">The Precision of Elegance</p>
       <h1 class="hero-title" id="heroTitle">Where Fabric<br>Meets Cosmos</h1>
     </div>
+    <!-- Floating Product Card -->
+    <div class="floating-product-card" id="floatingCard">
+      <div class="card-label">Featured</div>
+      <div class="card-title">The Midnight Silk Saree</div>
+      <div class="card-rating">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <div class="card-price">15,000 BDT</div>
+      <div class="card-badge">Premium</div>
+      <div class="card-stock"><i class="fas fa-circle"></i> In Stock</div>
+      <button class="btn-vortex" id="addToVortex">
+        <span class="btn-content">
+          <i class="fas fa-spinner"></i>
+          + TO VORTEX
+        </span>
+      </button>
+    </div>
   </div>
 
   <div class="hero-cursor-hint">
     <span>Move your cursor to shape reality</span>
     <div class="cursor-line"></div>
-  </div>
-
-  <!-- Floating Product Card -->
-  <div class="floating-product-card" id="floatingCard">
-    <div class="card-label">Featured</div>
-    <div class="card-title">The Midnight Silk Saree</div>
-    <div class="card-rating">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-    </div>
-    <div class="card-price">15,000 BDT</div>
-    <div class="card-badge">Premium</div>
-    <div class="card-stock"><i class="fas fa-circle"></i> In Stock</div>
-    <button class="btn-vortex" id="addToVortex">
-      <span class="btn-content">
-        <i class="fas fa-spinner"></i>
-        + TO VORTEX
-      </span>
-    </button>
   </div>
 
   <!-- Black Hole Vortex Trigger -->
@@ -754,8 +748,8 @@ footer {
       <span>Total</span>
       <span>15,000 BDT</span>
     </div>
-    <a href="{{ route('cart') }}" class="btn-view-cart">View Full Vortex</a>
   </div>
+  <a href="{{ route('cart') }}" class="btn-view-cart">View Full Vortex</a>
 </div>
 
 <!-- ═══════════ NEW ARRIVALS ═══════════ -->
