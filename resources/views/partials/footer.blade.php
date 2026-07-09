@@ -1,14 +1,15 @@
 <footer class="aura-footer">
     <div class="aura-footer-decor"></div>
     <div class="container">
-        <div class="row g-4 py-4">
+        <div class="row g-5 py-5">
             <div class="col-lg-4 col-md-6">
                 <a href="{{ route('home') }}" class="aura-footer-brand">AURA</a>
-                <p class="aura-footer-desc mt-2">
+                <p class="aura-footer-desc mt-3">
                     Curating the finest sarees that blend timeless tradition with contemporary elegance.
                     Each piece tells a story of craftsmanship, heritage, and unparalleled beauty.
+                    Inspired by the cosmos, crafted for the extraordinary.
                 </p>
-                <div class="d-flex gap-2 mt-3">
+                <div class="d-flex gap-3 mt-4">
                     <a href="#" class="aura-social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" class="aura-social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                     <a href="#" class="aura-social-icon" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
@@ -17,7 +18,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-2 col-md-6">
+            <div class="col-lg-2 col-md-6 offset-lg-1">
                 <h6 class="aura-footer-heading">Quick Links</h6>
                 <ul class="list-unstyled aura-footer-links">
                     <li><a href="{{ route('collection') }}">Shop</a></li>
@@ -28,13 +29,13 @@
                 </ul>
             </div>
 
-            <div class="col-lg-3 col-md-6 offset-lg-1">
+            <div class="col-lg-4 col-md-6 offset-lg-1">
                 <h6 class="aura-footer-heading">Follow Us</h6>
                 <p class="aura-footer-desc small">
                     Stay connected for exclusive previews, behind-the-scenes stories, and celestial drops.
                 </p>
 
-                <h6 class="aura-footer-heading mt-3">Newsletter</h6>
+                <h6 class="aura-footer-heading mt-4">Newsletter</h6>
                 <form class="aura-newsletter mt-2" id="newsletterForm">
                     @csrf
                     <div class="input-group">
