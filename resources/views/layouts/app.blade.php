@@ -35,7 +35,7 @@
 <body>
     @include('partials.navbar')
 
-    <main>
+    <main style="padding-top: 76px;">
         @yield('content')
     </main>
 
