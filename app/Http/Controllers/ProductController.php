@@ -154,24 +154,22 @@ class ProductController extends Controller
     {
         $search = $request->get('q');
 
-        $products = Product::with(['images', 'category', 'brand'])
-            ->where('status', true)
-            ->where(function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhereHas('category', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('brand', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
-            })
-            ->take(10)
-            ->get();
+        $query = $this->buildProductQuery($request);
 
-        return response()->json([
-            'success' => true,
-            'products' => $products,
-            'total' => $products->count(),
-        ]);
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+                ->orWhereHas('category', fn ($cq) => $cq->where('name', 'like', "%{$search}%"))
+                ->orWhereHas('brand', fn ($bq) => $bq->where('name', 'like', "%{$search}%"));
+        });
+
+        $products = $query->paginate(20)->withQueryString();
+
+        $categories = Category::where('status', true)->orderBy('sort_order')->get();
+        $brands = Brand::where('status', true)->get();
+        $colors = Product::where('status', true)->whereNotNull('color')->distinct()->pluck('color');
+        $fabrics = Product::where('status', true)->whereNotNull('fabric')->distinct()->pluck('fabric');
+        $occasions = Product::where('status', true)->whereNotNull('occasion')->distinct()->pluck('occasion');
+
+        return view('products.index', compact('products', 'categories', 'brands', 'colors', 'fabrics', 'occasions'));
     }
 }
