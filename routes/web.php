@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CollectionController as AdminCollectionController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -27,6 +29,7 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 // Collection/Products
 Route::get('/collection', [ProductController::class, 'index'])->name('products.index');
+Route::get('/collections/{slug}', [ProductController::class, 'collection'])->name('products.collection');
 Route::get('/shop', [ProductController::class, 'index'])->name('collection');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/products/quick-view/{id}', [ProductController::class, 'quickView'])->name('products.quick-view');
@@ -52,9 +55,9 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
 
 // Auth routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', fn () => view('auth.login'))->name('login');
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/register', fn () => view('auth.register'))->name('register');
+    Route::get('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     Route::view('/forgot-password', 'auth.passwords.email')->name('password.request');
 });
@@ -117,6 +120,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Brands
     Route::resource('brands', AdminBrandController::class);
+
+    // Collections
+    Route::resource('collections', AdminCollectionController::class);
+
+    // Banners
+    Route::resource('banners', AdminBannerController::class);
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');

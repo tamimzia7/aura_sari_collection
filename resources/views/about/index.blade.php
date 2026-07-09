@@ -432,7 +432,9 @@
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="card-body">
-                        <h5>Ananya Sharma</h5>
+                        <img src="" alt="">
+                        
+                        <h5>Tamim Zia</h5>
                         <p class="role">Founder & Creative Director</p>
                         <p class="text-muted small">Visionary leader with a passion for Indian textiles and design.</p>
                     </div>
@@ -444,7 +446,7 @@
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="card-body">
-                        <h5>Priya Patel</h5>
+                        <h5>Zia Uddin</h5>
                         <p class="role">Head of Curation</p>
                         <p class="text-muted small">Expert textile connoisseur with a decade of experience in handloom.</p>
                     </div>
@@ -456,7 +458,7 @@
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="card-body">
-                        <h5>Vikram Singh</h5>
+                        <h5>Tanjim</h5>
                         <p class="role">Operations Manager</p>
                         <p class="text-muted small">Ensures every order reaches you with perfection and care.</p>
                     </div>
@@ -468,7 +470,7 @@
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="card-body">
-                        <h5>Meera Krishnan</h5>
+                        <h5>Tipu</h5>
                         <p class="role">Customer Experience</p>
                         <p class="text-muted small">Dedicated to making every AURA experience unforgettable.</p>
                     </div>

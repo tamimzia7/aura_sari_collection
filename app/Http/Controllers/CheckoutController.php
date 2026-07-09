@@ -25,7 +25,7 @@ class CheckoutController extends Controller
             ->get();
 
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+            return redirect()->route('cart')->with('error', 'Your cart is empty');
         }
 
         $addresses = Address::where('user_id', Auth::id())->get();

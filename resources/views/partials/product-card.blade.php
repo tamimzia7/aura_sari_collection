@@ -4,9 +4,9 @@
 ])
 
 @php
-    $primaryImage = $product->images[0]->image_path ?? 'images/placeholder.jpg';
-    $hoverImage = $product->images[1]->image_path ?? null;
-    $brandName = $product->brand->name ?? '';
+    $primaryImage = optional($product->images->first())->image_path ?? 'images/placeholder.jpg';
+    $hoverImage = optional($product->images->skip(1)->first())->image_path ?? null;
+    $brandName = optional($product->brand)->name ?? '';
     $stock = $product->stock_quantity ?? 0;
 @endphp
 

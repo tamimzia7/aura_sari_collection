@@ -11,6 +11,10 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        if ($request->isMethod('GET')) {
+            return view('auth.login');
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -29,6 +33,10 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        if ($request->isMethod('GET')) {
+            return view('auth.register');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],

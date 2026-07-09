@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -11,48 +12,76 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        $query = $this->buildProductQuery($request);
+
+        $products = $query->paginate(20)->withQueryString();
+
+        $categories = Category::where('status', true)->orderBy('sort_order')->get();
+        $brands = Brand::where('status', true)->get();
+        $colors = Product::where('status', true)->whereNotNull('color')->distinct()->pluck('color');
+        $fabrics = Product::where('status', true)->whereNotNull('fabric')->distinct()->pluck('fabric');
+        $occasions = Product::where('status', true)->whereNotNull('occasion')->distinct()->pluck('occasion');
+
+        return view('products.index', compact('products', 'categories', 'brands', 'colors', 'fabrics', 'occasions'));
+    }
+
+    public function collection(Request $request, $slug)
+    {
+        $collection = Collection::where('slug', $slug)->firstOrFail();
+
+        $query = $this->buildProductQuery($request)
+            ->where('collection_id', $collection->id);
+
+        $products = $query->paginate(20)->withQueryString();
+
+        $categories = Category::where('status', true)->orderBy('sort_order')->get();
+        $brands = Brand::where('status', true)->get();
+        $colors = Product::where('status', true)->whereNotNull('color')->distinct()->pluck('color');
+        $fabrics = Product::where('status', true)->whereNotNull('fabric')->distinct()->pluck('fabric');
+        $occasions = Product::where('status', true)->whereNotNull('occasion')->distinct()->pluck('occasion');
+
+        return view('products.index', compact('products', 'categories', 'brands', 'colors', 'fabrics', 'occasions', 'collection'));
+    }
+
+    private function buildProductQuery(Request $request)
+    {
         $query = Product::with(['category', 'brand', 'images'])
             ->where('status', true);
 
-        // Category filter (supports multiple via category[] array)
         if ($request->has('category')) {
             $categories = (array) $request->input('category', []);
             $categories = array_filter($categories);
-            if (!empty($categories)) {
+            if (! empty($categories)) {
                 $query->whereHas('category', function ($q) use ($categories) {
                     $q->whereIn('slug', $categories);
                 });
             }
         }
 
-        // Color filter (supports multiple via color[] array)
         if ($request->has('color')) {
             $colors = (array) $request->input('color', []);
             $colors = array_filter($colors);
-            if (!empty($colors)) {
+            if (! empty($colors)) {
                 $query->whereIn('color', $colors);
             }
         }
 
-        // Fabric filter (supports multiple via fabric[] array)
         if ($request->has('fabric')) {
             $fabrics = (array) $request->input('fabric', []);
             $fabrics = array_filter($fabrics);
-            if (!empty($fabrics)) {
+            if (! empty($fabrics)) {
                 $query->whereIn('fabric', $fabrics);
             }
         }
 
-        // Occasion filter (supports multiple via occasion[] array)
         if ($request->has('occasion')) {
             $occasions = (array) $request->input('occasion', []);
             $occasions = array_filter($occasions);
-            if (!empty($occasions)) {
+            if (! empty($occasions)) {
                 $query->whereIn('occasion', $occasions);
             }
         }
 
-        // Price range filter - uses discounted_price logic
         if ($request->filled('price_range')) {
             [$min, $max] = explode('-', $request->price_range);
             $min = (float) $min;
@@ -71,7 +100,6 @@ class ProductController extends Controller
             });
         }
 
-        // Special filters
         if ($request->boolean('featured')) {
             $query->where('is_featured', true);
         }
@@ -84,7 +112,6 @@ class ProductController extends Controller
             $query->where('is_best_selling', true);
         }
 
-        // Availability filter
         if ($request->filled('availability')) {
             if ($request->availability === 'in_stock') {
                 $query->where('stock_quantity', '>', 0);
@@ -93,7 +120,6 @@ class ProductController extends Controller
             }
         }
 
-        // Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -107,7 +133,6 @@ class ProductController extends Controller
             });
         }
 
-        // Sorting
         $sort = $request->sort;
         match ($sort) {
             'price_low' => $query->orderByRaw('COALESCE(discount_price, price) ASC'),
@@ -118,15 +143,7 @@ class ProductController extends Controller
             default => $query->latest(),
         };
 
-        $products = $query->paginate(20)->withQueryString();
-
-        $categories = Category::where('status', true)->orderBy('sort_order')->get();
-        $brands = Brand::where('status', true)->get();
-        $colors = Product::where('status', true)->whereNotNull('color')->distinct()->pluck('color');
-        $fabrics = Product::where('status', true)->whereNotNull('fabric')->distinct()->pluck('fabric');
-        $occasions = Product::where('status', true)->whereNotNull('occasion')->distinct()->pluck('occasion');
-
-        return view('products.index', compact('products', 'categories', 'brands', 'colors', 'fabrics', 'occasions'));
+        return $query;
     }
 
     public function show($slug)

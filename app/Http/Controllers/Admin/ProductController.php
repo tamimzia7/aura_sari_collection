@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
@@ -50,8 +51,9 @@ class ProductController extends Controller
     {
         $categories = Category::where('status', true)->orderBy('sort_order')->get();
         $brands = Brand::where('status', true)->get();
+        $collections = Collection::where('status', true)->orderBy('sort_order')->get();
 
-        return view('admin.products.create', compact('categories', 'brands'));
+        return view('admin.products.create', compact('categories', 'brands', 'collections'));
     }
 
     public function store(StoreProductRequest $request)
@@ -65,12 +67,14 @@ class ProductController extends Controller
         $product = Product::create($data);
 
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
+            $files = is_array($request->file('images')) ? $request->file('images') : [$request->file('images')];
+
+            foreach ($files as $index => $image) {
                 $path = $image->store('products', 'public');
 
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_path' => 'storage/' . $path,
+                    'image_path' => 'storage/'.$path,
                     'is_primary' => $index === 0,
                     'sort_order' => $index + 1,
                 ]);
@@ -87,18 +91,13 @@ class ProductController extends Controller
 
         $categories = Category::where('status', true)->orderBy('sort_order')->get();
         $brands = Brand::where('status', true)->get();
+        $collections = Collection::where('status', true)->orderBy('sort_order')->get();
 
-        return view('admin.products.edit', compact('product', 'categories', 'brands'));
+        return view('admin.products.edit', compact('product', 'categories', 'brands', 'collections'));
     }
 
     public function update(UpdateProductRequest $request, Product $product)
     {
-        if ($request->filled('remove_images')) {
-            $request->merge([
-                'remove_images' => array_map('trim', explode(',', $request->remove_images)),
-            ]);
-        }
-
         $data = $request->validated();
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_new_arrival'] = $request->boolean('is_new_arrival');
@@ -109,21 +108,22 @@ class ProductController extends Controller
 
         if ($request->hasFile('images')) {
             $existingCount = $product->images()->count();
+            $files = is_array($request->file('images')) ? $request->file('images') : [$request->file('images')];
 
-            foreach ($request->file('images') as $index => $image) {
+            foreach ($files as $index => $image) {
                 $path = $image->store('products', 'public');
 
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_path' => 'storage/' . $path,
+                    'image_path' => 'storage/'.$path,
                     'is_primary' => $existingCount === 0 && $index === 0,
                     'sort_order' => $existingCount + $index + 1,
                 ]);
             }
         }
 
-        if ($request->has('remove_images')) {
-            $removeIds = $request->remove_images;
+        if ($request->filled('remove_images')) {
+            $removeIds = (array) $request->input('remove_images', []);
             $images = ProductImage::whereIn('id', $removeIds)->where('product_id', $product->id)->get();
 
             foreach ($images as $image) {

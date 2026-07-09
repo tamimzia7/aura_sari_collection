@@ -17,6 +17,8 @@ class Product extends Model
     protected $fillable = [
         'category_id',
         'brand_id',
+        'collection_id',
+        'product_code',
         'name',
         'slug',
         'sku',
@@ -31,9 +33,11 @@ class Product extends Model
         'sizes',
         'weight',
         'stock_quantity',
+        'stock_status',
         'is_featured',
         'is_new_arrival',
         'is_best_selling',
+        'is_trending',
         'status',
         'meta_title',
         'meta_description',
@@ -45,6 +49,7 @@ class Product extends Model
             'is_featured' => 'boolean',
             'is_new_arrival' => 'boolean',
             'is_best_selling' => 'boolean',
+            'is_trending' => 'boolean',
             'status' => 'boolean',
             'sizes' => 'array',
         ];
@@ -58,6 +63,11 @@ class Product extends Model
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    public function collection(): BelongsTo
+    {
+        return $this->belongsTo(Collection::class);
     }
 
     public function images(): HasMany
@@ -83,6 +93,36 @@ class Product extends Model
     public function cartItems(): HasMany
     {
         return $this->hasMany(Cart::class);
+    }
+
+    public function scopeNewArrivals($query)
+    {
+        return $query->where('is_new_arrival', true);
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeTrending($query)
+    {
+        return $query->where('is_trending', true);
+    }
+
+    public function scopeBestSelling($query)
+    {
+        return $query->where('is_best_selling', true);
+    }
+
+    public function scopeInStock($query)
+    {
+        return $query->where('stock_status', 'in_stock');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', true);
     }
 
     public function getDiscountedPriceAttribute(): float

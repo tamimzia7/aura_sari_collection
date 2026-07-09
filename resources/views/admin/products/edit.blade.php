@@ -32,6 +32,12 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
+                            <label class="form-label">Product Code</label>
+                            <input type="text" class="form-control" value="{{ old('product_code', $product->product_code ?? 'PRD-' . strtoupper(Str::random(6))) }}" readonly>
+                            <input type="hidden" name="product_code" value="{{ old('product_code', $product->product_code ?? 'PRD-' . strtoupper(Str::random(6))) }}">
+                            @error('product_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-12">
                             <label class="form-label">Product Name <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" placeholder="Enter product name" value="{{ old('name', $product->name) }}" required>
                             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -75,6 +81,14 @@
                             <input type="number" name="discount_price" class="form-control @error('discount_price') is-invalid @enderror" placeholder="0.00" step="0.01" value="{{ old('discount_price', $product->discount_price) }}">
                             <div class="form-text">Leave empty if no discount.</div>
                             @error('discount_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Stock Status <span class="text-danger">*</span></label>
+                            <select name="stock_status" class="form-select @error('stock_status') is-invalid @enderror">
+                                <option value="in_stock" {{ old('stock_status', $product->stock_status ?? 'in_stock') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                                <option value="out_of_stock" {{ old('stock_status', $product->stock_status) == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                            </select>
+                            @error('stock_status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
                 </div>
@@ -175,6 +189,16 @@
                         @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Collection</label>
+                        <select name="collection_id" class="form-select @error('collection_id') is-invalid @enderror">
+                            <option value="">Select Collection</option>
+                            @foreach($collections as $collection)
+                                <option value="{{ $collection->id }}" {{ old('collection_id', $product->collection_id) == $collection->id ? 'selected' : '' }}>{{ $collection->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('collection_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Brand</label>
                         <select name="brand_id" class="form-select @error('brand_id') is-invalid @enderror">
                             <option value="">Select Brand</option>
@@ -230,6 +254,10 @@
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" name="is_best_selling" role="switch" value="1" {{ old('is_best_selling', $product->is_best_selling) ? 'checked' : '' }}>
                             </div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_trending" role="switch" value="1" {{ old('is_trending', $product->is_trending) ? 'checked' : '' }}>
+                            <label class="form-check-label">Trending Product</label>
                         </div>
                     </div>
                 </div>

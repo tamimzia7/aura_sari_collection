@@ -43,7 +43,7 @@ class DashboardController extends Controller
         ]);
 
         $user = Auth::user();
-        $user->update($request->only(['name', 'email']));
+        $user->update($request->only(['name', 'email', 'phone']));
 
         return back()->with('success', 'Profile updated successfully');
     }

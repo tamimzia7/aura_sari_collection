@@ -3,204 +3,172 @@
 @section('title', 'Settings')
 
 @section('content')
+@php
+$setting = fn($key, $default = '') => $settings->flatten()->firstWhere('key', $key)?->value ?? $default;
+$groups = [
+    'general' => ['label' => 'General Settings', 'icon' => 'fa-cog', 'fields' => [
+        ['key' => 'site_name', 'label' => 'Site Name', 'type' => 'text', 'required' => true],
+        ['key' => 'site_tagline', 'label' => 'Tagline', 'type' => 'text'],
+        ['key' => 'site_description', 'label' => 'Site Description', 'type' => 'textarea', 'rows' => 3],
+        ['key' => 'currency', 'label' => 'Default Currency', 'type' => 'select', 'options' => ['USD' => 'USD ($)', 'INR' => 'INR (₹)', 'EUR' => 'EUR (€)', 'GBP' => 'GBP (£)']],
+        ['key' => 'currency_symbol', 'label' => 'Currency Symbol', 'type' => 'select', 'options' => ['$' => '$', '₹' => '₹', '€' => '€', '£' => '£']],
+    ]],
+    'contact' => ['label' => 'Contact Information', 'icon' => 'fa-address-card', 'fields' => [
+        ['key' => 'contact_email', 'label' => 'Contact Email', 'type' => 'email'],
+        ['key' => 'contact_phone', 'label' => 'Contact Phone', 'type' => 'text'],
+        ['key' => 'contact_address', 'label' => 'Contact Address', 'type' => 'textarea', 'rows' => 2],
+    ]],
+    'social' => ['label' => 'Social Links', 'icon' => 'fa-share-alt', 'fields' => [
+        ['key' => 'social_facebook', 'label' => 'Facebook', 'type' => 'url', 'icon' => 'fab fa-facebook', 'icon_color' => '#1877F2'],
+        ['key' => 'social_instagram', 'label' => 'Instagram', 'type' => 'url', 'icon' => 'fab fa-instagram', 'icon_color' => '#E4405F'],
+        ['key' => 'social_whatsapp', 'label' => 'WhatsApp', 'type' => 'text', 'icon' => 'fab fa-whatsapp', 'icon_color' => '#25D366'],
+        ['key' => 'social_youtube', 'label' => 'YouTube', 'type' => 'url', 'icon' => 'fab fa-youtube', 'icon_color' => '#FF0000'],
+    ]],
+    'appearance' => ['label' => 'Appearance', 'icon' => 'fa-palette', 'fields' => [
+        ['key' => 'logo_path', 'label' => 'Logo URL', 'type' => 'text', 'help' => 'Enter the URL or path for the store logo'],
+        ['key' => 'favicon_path', 'label' => 'Favicon URL', 'type' => 'text', 'help' => 'Enter the URL or path for the favicon'],
+        ['key' => 'footer_text', 'label' => 'Footer Text', 'type' => 'text'],
+    ]],
+];
+@endphp
+
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
         <h4>Settings</h4>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
                 <li class="breadcrumb-item active">Settings</li>
             </ol>
         </nav>
     </div>
-    <div>
-        <button class="btn btn-soft-primary"><i class="fas fa-sync-alt me-1"></i> Reset Defaults</button>
-    </div>
 </div>
 
-<form action="#" method="POST">
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+<form action="{{ route('admin.settings.update') }}" method="POST">
     @csrf
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header">General Settings</div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Site Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" value="AURA - Premium Saree Collection">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Tagline</label>
-                            <input type="text" class="form-control" value="Discover the finest collection of premium sarees">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Site Description</label>
-                            <textarea class="form-control" rows="3">AURA is a premium e-commerce platform offering the finest collection of handcrafted sarees, blending traditional artistry with contemporary elegance.</textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Default Currency</label>
-                            <select class="form-select">
-                                <option value="USD" selected>USD ($)</option>
-                                <option value="INR">INR (₹)</option>
-                                <option value="EUR">EUR (€)</option>
-                                <option value="GBP">GBP (£)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Currency Symbol Position</label>
-                            <select class="form-select">
-                                <option value="before" selected>Before ($249)</option>
-                                <option value="after">After (249$)</option>
-                            </select>
-                        </div>
+            @foreach (['general', 'contact'] as $groupKey)
+                @php $group = $groups[$groupKey]; @endphp
+                @if ($settings->has($groupKey))
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas {{ $group['icon'] }} me-2"></i> {{ $group['label'] }}
                     </div>
-                </div>
-            </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach ($group['fields'] as $field)
+                                @php
+                                    $fieldKey = $field['key'];
+                                    $fieldValue = old("settings.$fieldKey", $setting($fieldKey));
+                                    $fieldName = "settings[$fieldKey]";
+                                    $errorKey = "settings.$fieldKey";
+                                    $halfWidth = in_array($field['type'], ['textarea']) ? 'col-12' : 'col-md-6';
+                                @endphp
+                                <div class="{{ $halfWidth }}">
+                                    <label for="{{ $fieldKey }}" class="form-label">
+                                        {{ $field['label'] }}
+                                        @if (!empty($field['required']))
+                                            <span class="text-danger">*</span>
+                                        @endif
+                                    </label>
 
-            <div class="card mb-4">
-                <div class="card-header">Theme Colors</div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <label class="form-label">Primary Color</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" value="#8B5CF6">
-                                <input type="text" class="form-control" value="#8B5CF6">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Secondary Color</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" value="#1a1d23">
-                                <input type="text" class="form-control" value="#1a1d23">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Accent Color</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" value="#10b981">
-                                <input type="text" class="form-control" value="#10b981">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                    @if ($field['type'] === 'textarea')
+                                        <textarea name="{{ $fieldName }}" id="{{ $fieldKey }}"
+                                            class="form-control @error($errorKey) is-invalid @enderror"
+                                            rows="{{ $field['rows'] ?? 3 }}" {{ !empty($field['required']) ? 'required' : '' }}>{{ $fieldValue }}</textarea>
+                                    @elseif ($field['type'] === 'select')
+                                        <select name="{{ $fieldName }}" id="{{ $fieldKey }}"
+                                            class="form-select @error($errorKey) is-invalid @enderror"
+                                            {{ !empty($field['required']) ? 'required' : '' }}>
+                                            <option value="">Select {{ $field['label'] }}</option>
+                                            @foreach ($field['options'] as $optValue => $optLabel)
+                                                <option value="{{ $optValue }}" {{ $fieldValue == $optValue ? 'selected' : '' }}>{{ $optLabel }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input type="{{ $field['type'] }}" name="{{ $fieldName }}" id="{{ $fieldKey }}"
+                                            class="form-control @error($errorKey) is-invalid @enderror"
+                                            value="{{ $fieldValue }}" {{ !empty($field['required']) ? 'required' : '' }}>
+                                    @endif
 
-            <div class="card mb-4">
-                <div class="card-header">Contact Information</div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" class="form-control" value="hello@aurasaree.com">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" value="+1 (555) 123-4567">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Address Line 1</label>
-                            <input type="text" class="form-control" value="123 Fashion Street">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Address Line 2</label>
-                            <input type="text" class="form-control" value="Suite 100">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">City</label>
-                            <input type="text" class="form-control" value="New York">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">State</label>
-                            <input type="text" class="form-control" value="NY">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">ZIP Code</label>
-                            <input type="text" class="form-control" value="10001">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Country</label>
-                            <select class="form-select">
-                                <option>United States</option>
-                                <option selected>India</option>
-                                <option>United Kingdom</option>
-                                <option>Canada</option>
-                                <option>Australia</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Timezone</label>
-                            <select class="form-select">
-                                <option>UTC</option>
-                                <option>EST</option>
-                                <option>PST</option>
-                                <option selected>Asia/Kolkata (IST)</option>
-                            </select>
+                                    @error($errorKey)
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
-            </div>
+                @endif
+            @endforeach
         </div>
 
         <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">Store Logo</div>
-                <div class="card-body text-center">
-                    <div style="width:120px;height:120px;border-radius:16px;background:#f1f3f5;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:700;color:var(--primary-color);cursor:pointer;border:2px dashed #e2e8f0;" onclick="document.getElementById('storeLogo').click()">
-                        A
+            @foreach (['social', 'appearance'] as $groupKey)
+                @php $group = $groups[$groupKey]; @endphp
+                @if ($settings->has($groupKey))
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas {{ $group['icon'] }} me-2"></i> {{ $group['label'] }}
                     </div>
-                    <p style="font-size:13px;color:#6c757d;margin-bottom:16px;">Click to upload store logo<br><small>PNG, JPG, WEBP (max 2MB)</small></p>
-                    <input type="file" id="storeLogo" style="display:none;" accept="image/*">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-light btn-sm">Remove Logo</button>
-                    </div>
-                </div>
-            </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-column gap-3">
+                            @foreach ($group['fields'] as $field)
+                                @php
+                                    $fieldKey = $field['key'];
+                                    $fieldValue = old("settings.$fieldKey", $setting($fieldKey));
+                                    $fieldName = "settings[$fieldKey]";
+                                    $errorKey = "settings.$fieldKey";
+                                @endphp
+                                <div>
+                                    <label for="{{ $fieldKey }}" class="form-label">
+                                        @if (!empty($field['icon']))
+                                            <i class="{{ $field['icon'] }} me-2" style="color: {{ $field['icon_color'] ?? '#6c757d' }};"></i>
+                                        @endif
+                                        {{ $field['label'] }}
+                                    </label>
 
-            <div class="card mb-4">
-                <div class="card-header">Maintenance Mode</div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <div class="fw-semibold">Enable Maintenance Mode</div>
-                            <div style="font-size:12px;color:#6c757d;">Only admins can access the site</div>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch">
-                        </div>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label">Maintenance Message</label>
-                        <textarea class="form-control" rows="2" placeholder="We'll be back soon!">We are currently performing scheduled maintenance. We'll be back shortly!</textarea>
-                    </div>
-                </div>
-            </div>
+                                    @if ($field['type'] === 'textarea')
+                                        <textarea name="{{ $fieldName }}" id="{{ $fieldKey }}"
+                                            class="form-control @error($errorKey) is-invalid @enderror"
+                                            rows="{{ $field['rows'] ?? 3 }}">{{ $fieldValue }}</textarea>
+                                    @elseif ($field['type'] === 'select')
+                                        <select name="{{ $fieldName }}" id="{{ $fieldKey }}"
+                                            class="form-select @error($errorKey) is-invalid @enderror">
+                                            <option value="">Select {{ $field['label'] }}</option>
+                                            @foreach ($field['options'] as $optValue => $optLabel)
+                                                <option value="{{ $optValue }}" {{ $fieldValue == $optValue ? 'selected' : '' }}>{{ $optLabel }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input type="{{ $field['type'] }}" name="{{ $fieldName }}" id="{{ $fieldKey }}"
+                                            class="form-control @error($errorKey) is-invalid @enderror"
+                                            value="{{ $fieldValue }}" placeholder="{{ $field['help'] ?? '' }}">
+                                    @endif
 
-            <div class="card mb-4">
-                <div class="card-header">Social Links</div>
-                <div class="card-body">
-                    <div class="d-flex flex-column gap-3">
-                        <div>
-                            <label class="form-label"><i class="fab fa-facebook me-2" style="color:#1877F2;"></i> Facebook</label>
-                            <input type="url" class="form-control" placeholder="https://facebook.com/aurasaree">
-                        </div>
-                        <div>
-                            <label class="form-label"><i class="fab fa-instagram me-2" style="color:#E4405F;"></i> Instagram</label>
-                            <input type="url" class="form-control" placeholder="https://instagram.com/aurasaree">
-                        </div>
-                        <div>
-                            <label class="form-label"><i class="fab fa-pinterest me-2" style="color:#BD081C;"></i> Pinterest</label>
-                            <input type="url" class="form-control" placeholder="https://pinterest.com/aurasaree">
-                        </div>
-                        <div>
-                            <label class="form-label"><i class="fab fa-youtube me-2" style="color:#FF0000;"></i> YouTube</label>
-                            <input type="url" class="form-control" placeholder="https://youtube.com/@aurasaree">
+                                    @if (!empty($field['help']))
+                                        <div class="form-text">{{ $field['help'] }}</div>
+                                    @endif
+
+                                    @error($errorKey)
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
-            </div>
+                @endif
+            @endforeach
 
             <div class="card">
                 <div class="card-body">
@@ -215,20 +183,3 @@
     </div>
 </form>
 @endsection
-
-@push('scripts')
-<script>
-$(document).ready(function() {
-    $('input[type="color"]').on('input', function() {
-        $(this).closest('.color-input-wrapper').find('input[type="text"]').val($(this).val());
-    });
-
-    $('.color-input-wrapper input[type="text"]').on('input', function() {
-        const val = $(this).val();
-        if (/^#[0-9A-F]{6}$/i.test(val)) {
-            $(this).closest('.color-input-wrapper').find('input[type="color"]').val(val);
-        }
-    });
-});
-</script>
-@endpush

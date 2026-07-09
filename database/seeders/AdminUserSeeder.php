@@ -10,18 +10,24 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@aura.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@aura.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]
+        );
 
-        User::create([
-            'name' => 'Customer',
-            'email' => 'customer@aura.com',
-            'password' => Hash::make('password'),
-            'role' => 'customer',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'customer@aura.com'],
+            [
+                'name' => 'Customer',
+                'password' => Hash::make('password'),
+                'role' => 'customer',
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

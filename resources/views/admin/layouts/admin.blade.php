@@ -1054,16 +1054,16 @@
             </div>
 
             <div class="nav-item">
-                <a href="#productsMenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.brands.*') ? 'true' : 'false' }}">
+                <a href="#productsMenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.collections.*') ? 'true' : 'false' }}">
                     <i class="fas fa-tshirt"></i>
                     <span>Products</span>
                     <i class="fas fa-chevron-right arrow"></i>
                 </a>
-                <ul class="sub-menu collapse {{ request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.brands.*') ? 'show' : '' }}" id="productsMenu">
+                <ul class="sub-menu collapse {{ request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.collections.*') ? 'show' : '' }}" id="productsMenu">
                     <li><a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}"><i class="fas fa-list"></i> All Products</a></li>
                     <li><a href="{{ route('admin.products.create') }}" class="nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}"><i class="fas fa-plus"></i> Add New</a></li>
                     <li><a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}"><i class="fas fa-tags"></i> Categories</a></li>
-                    <li><a href="{{ route('admin.brands.index') }}" class="nav-link {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}"><i class="fas fa-copyright"></i> Brands</a></li>
+                    <li><a href="{{ route('admin.collections.index') }}" class="nav-link {{ request()->routeIs('admin.collections.*') ? 'active' : '' }}"><i class="fas fa-layer-group"></i> Collections</a></li>
                 </ul>
             </div>
 
@@ -1071,7 +1071,17 @@
                 <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Orders</span>
-                    <span class="badge bg-warning text-dark">12</span>
+                    @php $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count(); @endphp
+                    @if($pendingOrdersCount > 0)
+                    <span class="badge bg-warning text-dark">{{ $pendingOrdersCount }}</span>
+                    @endif
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
+                    <i class="fas fa-images"></i>
+                    <span>Banners</span>
                 </a>
             </div>
 
@@ -1095,7 +1105,10 @@
                 <a href="{{ route('admin.reviews.index') }}" class="nav-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
                     <i class="fas fa-star"></i>
                     <span>Reviews</span>
-                    <span class="badge bg-danger">3</span>
+                    @php $pendingReviewsCount = \App\Models\Review::where('is_approved', false)->count(); @endphp
+                    @if($pendingReviewsCount > 0)
+                    <span class="badge bg-danger">{{ $pendingReviewsCount }}</span>
+                    @endif
                 </a>
             </div>
 
@@ -1163,14 +1176,15 @@
                         <i class="fas fa-chevron-down" style="font-size:10px;color:#adb5bd;margin-left:4px;"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#"><i class="far fa-user"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ route('dashboard.profile') }}"><i class="far fa-user"></i> My Profile</a></li>
                         <li><a class="dropdown-item" href="#"><i class="far fa-cog"></i> Account Settings</a></li>
                         <li><a class="dropdown-item" href="#"><i class="far fa-chart-bar"></i> Activity Log</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                     </ul>
                 </div>
             </div>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
         </header>
 
         <!-- Page Content -->

@@ -22,59 +22,102 @@
 
 <!-- Stats Cards -->
 <div class="row g-4 mb-4">
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
             <div class="stat-icon purple">
                 <i class="fas fa-tshirt"></i>
             </div>
             <div class="stat-info">
                 <div class="stat-label">Total Products</div>
-                <div class="stat-value">1,248</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>12.5% from last month
-                </div>
+                <div class="stat-value">{{ number_format($totalProducts) }}</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
             <div class="stat-icon blue">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Total Categories</div>
+                <div class="stat-value">{{ number_format($totalCategories) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon indigo">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Total Collections</div>
+                <div class="stat-value">{{ number_format($totalCollections) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon orange">
                 <i class="fas fa-shopping-cart"></i>
             </div>
             <div class="stat-info">
                 <div class="stat-label">Total Orders</div>
-                <div class="stat-value">3,842</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>8.2% from last month
-                </div>
+                <div class="stat-value">{{ number_format($totalOrders) }}</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
-            <div class="stat-icon green">
-                <i class="fas fa-dollar-sign"></i>
+            <div class="stat-icon red">
+                <i class="fas fa-clock"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-label">Total Revenue</div>
-                <div class="stat-value">$68,420</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>23.1% from last month
-                </div>
+                <div class="stat-label">Pending Orders</div>
+                <div class="stat-value">{{ number_format($pendingOrders) }}</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
-            <div class="stat-icon orange">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Completed Orders</div>
+                <div class="stat-value">{{ number_format($completedOrders) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon blue">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-info">
                 <div class="stat-label">Total Customers</div>
-                <div class="stat-value">2,156</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up me-1"></i>5.7% from last month
-                </div>
+                <div class="stat-value">{{ number_format($totalCustomers) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">In Stock</div>
+                <div class="stat-value">{{ number_format($inStock) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Out of Stock</div>
+                <div class="stat-value">{{ number_format($outOfStock) }}</div>
             </div>
         </div>
     </div>
@@ -139,76 +182,19 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse ($recentOrders as $order)
                             <tr>
-                                <td><a href="{{ route('admin.orders.show', 1) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-001</a></td>
-                                <td>Priya Sharma</td>
-                                <td>Jul 5, 2026</td>
-                                <td><span class="badge-status delivered">Delivered</span></td>
-                                <td>$249.00</td>
+                                <td><a href="{{ route('admin.orders.show', $order->id) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</a></td>
+                                <td>{{ $order->user?->name ?? 'Guest' }}</td>
+                                <td>{{ $order->created_at->format('M j, Y') }}</td>
+                                <td><span class="badge-status {{ $order->status }}">{{ ucfirst($order->status) }}</span></td>
+                                <td>₹{{ number_format($order->grand_total, 0) }}</td>
                             </tr>
+                            @empty
                             <tr>
-                                <td><a href="{{ route('admin.orders.show', 2) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-002</a></td>
-                                <td>Ananya Gupta</td>
-                                <td>Jul 5, 2026</td>
-                                <td><span class="badge-status processing">Processing</span></td>
-                                <td>$189.00</td>
+                                <td colspan="5" class="text-center py-4 text-muted">No recent orders found.</td>
                             </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 3) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-003</a></td>
-                                <td>Riya Patel</td>
-                                <td>Jul 4, 2026</td>
-                                <td><span class="badge-status shipped">Shipped</span></td>
-                                <td>$329.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 4) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-004</a></td>
-                                <td>Neha Verma</td>
-                                <td>Jul 4, 2026</td>
-                                <td><span class="badge-status pending">Pending</span></td>
-                                <td>$159.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 5) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-005</a></td>
-                                <td>Meera Joshi</td>
-                                <td>Jul 3, 2026</td>
-                                <td><span class="badge-status cancelled">Cancelled</span></td>
-                                <td>$0.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 6) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-006</a></td>
-                                <td>Kavita Singh</td>
-                                <td>Jul 3, 2026</td>
-                                <td><span class="badge-status delivered">Delivered</span></td>
-                                <td>$445.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 7) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-007</a></td>
-                                <td>Sunita Reddy</td>
-                                <td>Jul 2, 2026</td>
-                                <td><span class="badge-status delivered">Delivered</span></td>
-                                <td>$275.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 8) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-008</a></td>
-                                <td>Deepika Kumar</td>
-                                <td>Jul 2, 2026</td>
-                                <td><span class="badge-status processing">Processing</span></td>
-                                <td>$599.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 9) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-009</a></td>
-                                <td>Anjali Desai</td>
-                                <td>Jul 1, 2026</td>
-                                <td><span class="badge-status shipped">Shipped</span></td>
-                                <td>$128.00</td>
-                            </tr>
-                            <tr>
-                                <td><a href="{{ route('admin.orders.show', 10) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-010</a></td>
-                                <td>Pooja Nair</td>
-                                <td>Jul 1, 2026</td>
-                                <td><span class="badge-status pending">Pending</span></td>
-                                <td>$367.00</td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -223,54 +209,23 @@
             </div>
             <div class="card-body p-0">
                 <div class="list-group list-group-flush">
+                    @forelse ($recentCustomers as $customer)
+                    @php
+                        $colors = ['#8B5CF6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#ec4899'];
+                        $bg = $colors[$loop->index % count($colors)];
+                        $initials = collect(explode(' ', $customer->name))->map(fn($part) => strtoupper(substr($part, 0, 1)))->implode('');
+                    @endphp
                     <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
-                        <div class="avatar-sm" style="background:#8B5CF6;">PS</div>
+                        <div class="avatar-sm" style="background: {{ $bg }};">{{ $initials }}</div>
                         <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">Priya Sharma</div>
-                            <div class="small text-muted">priya@example.com</div>
+                            <div class="fw-semibold" style="font-size:14px;">{{ $customer->name }}</div>
+                            <div class="small text-muted">{{ $customer->email }}</div>
                         </div>
-                        <span class="text-muted" style="font-size:12px;">Just now</span>
+                        <span class="text-muted" style="font-size:12px;">{{ $customer->created_at->format('M j, Y') }}</span>
                     </div>
-                    <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
-                        <div class="avatar-sm" style="background:#10b981;">AG</div>
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">Ananya Gupta</div>
-                            <div class="small text-muted">ananya@example.com</div>
-                        </div>
-                        <span class="text-muted" style="font-size:12px;">2 hours ago</span>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
-                        <div class="avatar-sm" style="background:#f59e0b;">RP</div>
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">Riya Patel</div>
-                            <div class="small text-muted">riya@example.com</div>
-                        </div>
-                        <span class="text-muted" style="font-size:12px;">4 hours ago</span>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
-                        <div class="avatar-sm" style="background:#ef4444;">NV</div>
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">Neha Verma</div>
-                            <div class="small text-muted">neha@example.com</div>
-                        </div>
-                        <span class="text-muted" style="font-size:12px;">Yesterday</span>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
-                        <div class="avatar-sm" style="background:#6366f1;">MJ</div>
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">Meera Joshi</div>
-                            <div class="small text-muted">meera@example.com</div>
-                        </div>
-                        <span class="text-muted" style="font-size:12px;">Yesterday</span>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0">
-                        <div class="avatar-sm" style="background:#ec4899;">KS</div>
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">Kavita Singh</div>
-                            <div class="small text-muted">kavita@example.com</div>
-                        </div>
-                        <span class="text-muted" style="font-size:12px;">2 days ago</span>
-                    </div>
+                    @empty
+                    <div class="list-group-item text-center py-4 text-muted border-0">No recent customers found.</div>
+                    @endforelse
                 </div>
             </div>
         </div>

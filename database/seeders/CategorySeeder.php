@@ -11,23 +11,25 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Silk Saree', 'description' => 'Elegant silk sarees for every occasion', 'sort_order' => 1],
-            ['name' => 'Cotton Saree', 'description' => 'Comfortable cotton sarees for daily wear', 'sort_order' => 2],
-            ['name' => 'Georgette Saree', 'description' => 'Lightweight georgette sarees with a flowy drape', 'sort_order' => 3],
-            ['name' => 'Chiffon Saree', 'description' => 'Soft chiffon sarees with a sheer elegance', 'sort_order' => 4],
-            ['name' => 'Satin Saree', 'description' => 'Lustrous satin sarees for a glossy finish', 'sort_order' => 5],
-            ['name' => 'Velvet Saree', 'description' => 'Rich velvet sarees for winter weddings', 'sort_order' => 6],
-            ['name' => 'Linen Saree', 'description' => 'Breathable linen sarees for casual elegance', 'sort_order' => 7],
-            ['name' => 'Net Saree', 'description' => 'Modern net sarees for party wear', 'sort_order' => 8],
-            ['name' => 'Organza Saree', 'description' => 'Crisp organza sarees with a royal look', 'sort_order' => 9],
-            ['name' => 'Jacquard Saree', 'description' => 'Intricate jacquard weave sarees', 'sort_order' => 10],
-            ['name' => 'Bridal Saree', 'description' => 'Exquisite bridal sarees for your special day', 'sort_order' => 11],
-            ['name' => 'Daily Wear Saree', 'description' => 'Affordable sarees for everyday comfort', 'sort_order' => 12],
+            ['name' => 'Silk Sarees', 'description' => 'Luxurious pure silk sarees with intricate zari work and timeless elegance for weddings and special occasions.', 'sort_order' => 1],
+            ['name' => 'Cotton Sarees', 'description' => 'Breathable and comfortable cotton sarees perfect for daily wear, summers, and casual occasions.', 'sort_order' => 2],
+            ['name' => 'Bridal Sarees', 'description' => 'Exquisite bridal sarees featuring rich embroidery, heavy zari work, and regal designs for your special day.', 'sort_order' => 3],
+            ['name' => 'Designer Sarees', 'description' => 'Contemporary designer sarees blending traditional artistry with modern aesthetics.', 'sort_order' => 4],
+            ['name' => 'Casual Sarees', 'description' => 'Effortlessly stylish casual sarees for everyday elegance and comfort.', 'sort_order' => 5],
+            ['name' => 'Party Wear Sarees', 'description' => 'Glamorous party wear sarees with sequins, embellishments, and vibrant colors.', 'sort_order' => 6],
+            ['name' => 'Festival Collection', 'description' => 'Celebrate festivals in style with our exclusive range of festive sarees.', 'sort_order' => 7],
+            ['name' => 'Office Wear Sarees', 'description' => 'Professional and polished sarees perfect for the modern working woman.', 'sort_order' => 8],
         ];
 
         foreach ($categories as $category) {
-            $category['slug'] = Str::slug($category['name']);
-            Category::create($category);
+            $slug = Str::slug($category['name']);
+            $category['image'] = 'https://placehold.co/400x500/0a0a1a/d4af37?text='.urlencode($category['name']);
+            $category['status'] = true;
+
+            Category::updateOrCreate(
+                ['slug' => $slug],
+                $category
+            );
         }
     }
 }

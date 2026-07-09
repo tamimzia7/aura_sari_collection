@@ -19,6 +19,8 @@ class UpdateProductRequest extends FormRequest
         return [
             'category_id' => ['required', 'exists:categories,id'],
             'brand_id' => ['nullable', 'exists:brands,id'],
+            'collection_id' => ['nullable', 'exists:collections,id'],
+            'product_code' => ['nullable', 'string'],
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', Rule::unique('products', 'slug')->ignore($productId)],
             'sku' => ['required', 'string', Rule::unique('products', 'sku')->ignore($productId)],
@@ -36,6 +38,8 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => ['boolean'],
             'is_new_arrival' => ['boolean'],
             'is_best_selling' => ['boolean'],
+            'is_trending' => ['nullable', 'boolean'],
+            'stock_status' => ['nullable', 'in:in_stock,out_of_stock'],
             'status' => ['boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
