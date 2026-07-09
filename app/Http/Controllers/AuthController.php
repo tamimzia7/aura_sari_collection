@@ -23,7 +23,11 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('home'));
+            if (Auth::user()->isAdmin()) {
+                return redirect()->intended(route('admin.dashboard'));
+            }
+
+            return redirect()->intended(route('dashboard.index'));
         }
 
         return back()->withErrors([
@@ -53,6 +57,10 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
 
         return redirect()->route('dashboard.index');
     }

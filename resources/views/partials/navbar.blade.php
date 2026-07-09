@@ -60,6 +60,10 @@
                             <li><a class="dropdown-item" href="{{ route('dashboard.orders') }}"><i class="fas fa-box me-2"></i>Orders</a></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard.wishlist') }}"><i class="far fa-heart me-2"></i>Wishlist</a></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard.profile') }}"><i class="far fa-user me-2"></i>Profile</a></li>
+                            @if(Auth::user()->isAdmin())
+                                <li><hr class="dropdown-divider aura-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}" style="color:#d4af37;"><i class="fas fa-shield-alt me-2"></i>Admin Panel</a></li>
+                            @endif
                             <li><hr class="dropdown-divider aura-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ route('logout') }}"

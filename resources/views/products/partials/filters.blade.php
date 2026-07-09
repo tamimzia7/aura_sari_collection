@@ -179,16 +179,16 @@
         <div class="collapse show" id="filterAvailability">
             <div class="form-check mb-2">
                 <input class="form-check-input filter-checkbox" type="checkbox"
-                       name="availability" value="in_stock" id="filter-in-stock"
-                       {{ request('availability') === 'in_stock' ? 'checked' : '' }}>
+                       name="availability[]" value="in_stock" id="filter-in-stock"
+                       {{ in_array('in_stock', (array) request('availability', [])) ? 'checked' : '' }}>
                 <label class="form-check-label small" for="filter-in-stock">
                     <i class="fas fa-check-circle text-success me-1 small"></i> In Stock
                 </label>
             </div>
             <div class="form-check mb-2">
                 <input class="form-check-input filter-checkbox" type="checkbox"
-                       name="availability" value="out_of_stock" id="filter-out-of-stock"
-                       {{ request('availability') === 'out_of_stock' ? 'checked' : '' }}>
+                       name="availability[]" value="out_of_stock" id="filter-out-of-stock"
+                       {{ in_array('out_of_stock', (array) request('availability', [])) ? 'checked' : '' }}>
                 <label class="form-check-label small" for="filter-out-of-stock">
                     <i class="fas fa-times-circle text-danger me-1 small"></i> Out of Stock
                 </label>
@@ -227,6 +227,22 @@
                        {{ request('best_selling') ? 'checked' : '' }}>
                 <label class="form-check-label small" for="filter-best-selling">
                     <i class="fas fa-fire text-danger me-1 small"></i> Best Selling
+                </label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox"
+                       name="trending" value="1" id="filter-trending"
+                       {{ request('trending') ? 'checked' : '' }}>
+                <label class="form-check-label small" for="filter-trending">
+                    <i class="fas fa-chart-line text-info me-1 small"></i> Trending
+                </label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input filter-checkbox" type="checkbox"
+                       name="discounted" value="1" id="filter-discounted"
+                       {{ request('discounted') ? 'checked' : '' }}>
+                <label class="form-check-label small" for="filter-discounted">
+                    <i class="fas fa-tag text-warning me-1 small"></i> Discounted
                 </label>
             </div>
         </div>

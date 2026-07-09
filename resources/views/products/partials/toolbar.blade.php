@@ -20,7 +20,7 @@
         <span class="text-muted small">
             Showing <strong class="text-dark">{{ $total > 0 ? $from : 0 }}</strong>–<strong class="text-dark">{{ $to }}</strong> of <strong class="text-dark">{{ number_format($total) }}</strong> results
         </span>
-        @if(request()->anyFilled(['search', 'category', 'color', 'fabric', 'occasion', 'featured', 'new_arrival', 'best_selling', 'price_range']))
+        @if(request()->anyFilled(['search', 'category', 'color', 'fabric', 'occasion', 'featured', 'new_arrival', 'best_selling', 'trending', 'discounted', 'availability', 'price_range']))
             <span class="badge bg-dark rounded-pill filter-active-badge d-none d-md-inline-flex align-items-center gap-1 px-3 py-1">
                 <i class="fas fa-filter fa-xs"></i> Filters Active
                 <button type="button" class="btn-close btn-close-white ms-1 clear-filters-btn" style="font-size: 0.5rem;" aria-label="Clear filters"></button>
@@ -50,6 +50,7 @@
                 <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
                 <option value="rating" {{ request('sort') === 'rating' ? 'selected' : '' }}>Best Rated</option>
                 <option value="popularity" {{ request('sort') === 'popularity' ? 'selected' : '' }}>Popularity</option>
+                <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest</option>
             </select>
         </div>
 

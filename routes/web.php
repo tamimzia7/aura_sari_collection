@@ -86,7 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
     // Dashboard
-    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::prefix('dashboard')->name('dashboard.')->middleware('redirect.admin')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('index');
         Route::get('/orders', [DashboardController::class, 'orders'])->name('orders');
         Route::get('/orders/{id}', [DashboardController::class, 'orderDetails'])->name('order-details');

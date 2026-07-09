@@ -99,7 +99,7 @@ body {
 
 /* ─── Breadcrumb ─── */
 .aura-breadcrumb {
-    padding: 0.75rem 0;
+    padding: 80px 0 0.75rem;
     background: var(--aura-bg);
     border-bottom: 1px solid var(--aura-border);
 }
@@ -777,9 +777,9 @@ body {
             <button class="btn btn-aura-outline w-100 d-flex align-items-center justify-content-center gap-2 py-2 rounded-pill" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
                 <i class="fas fa-sliders-h"></i>
                 <span class="fw-medium">Filters</span>
-                @if(request()->anyFilled(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling']))
-                    <span class="badge rounded-pill ms-1" style="background: var(--aura-gold); color: #0a0a1a;">{{ collect(request()->only(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling']))->filter()->count() }}</span>
-                @endif
+                    @if(request()->anyFilled(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling', 'trending', 'discounted', 'availability', 'search']))
+                        <span class="badge rounded-pill ms-1" style="background: var(--aura-gold); color: #0a0a1a;">{{ collect(request()->only(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling', 'trending', 'discounted', 'availability', 'search']))->filter(fn($v) => ! empty($v))->count() }}</span>
+                    @endif
             </button>
         </div>
 
@@ -1053,9 +1053,15 @@ $(function() {
             params.set('price_range', (minPrice || '0') + '-' + (maxPrice || '999999'));
         }
 
+        $('input[name="availability[]"]:checked').each(function() {
+            params.append('availability[]', $(this).val());
+        });
+
         if ($('#filter-featured').is(':checked')) params.set('featured', '1');
         if ($('#filter-new-arrival').is(':checked')) params.set('new_arrival', '1');
         if ($('#filter-best-selling').is(':checked')) params.set('best_selling', '1');
+        if ($('#filter-trending').is(':checked')) params.set('trending', '1');
+        if ($('#filter-discounted').is(':checked')) params.set('discounted', '1');
 
         const sortVal = $sortSelect.val();
         if (sortVal && sortVal !== 'newest') params.set('sort', sortVal);

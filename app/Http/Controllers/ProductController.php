@@ -48,96 +48,61 @@ class ProductController extends Controller
         $query = Product::with(['category', 'brand', 'images'])
             ->where('status', true);
 
-        if ($request->has('category')) {
-            $categories = (array) $request->input('category', []);
-            $categories = array_filter($categories);
-            if (! empty($categories)) {
-                $query->whereHas('category', function ($q) use ($categories) {
-                    $q->whereIn('slug', $categories);
-                });
-            }
-        }
-
-        if ($request->has('color')) {
-            $colors = (array) $request->input('color', []);
-            $colors = array_filter($colors);
-            if (! empty($colors)) {
-                $query->whereIn('color', $colors);
-            }
-        }
-
-        if ($request->has('fabric')) {
-            $fabrics = (array) $request->input('fabric', []);
-            $fabrics = array_filter($fabrics);
-            if (! empty($fabrics)) {
-                $query->whereIn('fabric', $fabrics);
-            }
-        }
-
-        if ($request->has('occasion')) {
-            $occasions = (array) $request->input('occasion', []);
-            $occasions = array_filter($occasions);
-            if (! empty($occasions)) {
-                $query->whereIn('occasion', $occasions);
-            }
-        }
-
-        if ($request->filled('price_range')) {
-            [$min, $max] = explode('-', $request->price_range);
-            $min = (float) $min;
-            $max = (float) $max;
-
-            $query->where(function ($q) use ($min, $max) {
-                $q->where(function ($sub) use ($min, $max) {
-                    $sub->whereNotNull('discount_price')
-                        ->where('discount_price', '>=', $min)
-                        ->where('discount_price', '<=', $max);
-                })->orWhere(function ($sub) use ($min, $max) {
-                    $sub->whereNull('discount_price')
-                        ->where('price', '>=', $min)
-                        ->where('price', '<=', $max);
-                });
+        $query->when($request->has('category'), function ($q) use ($request) {
+            $categories = array_filter((array) $request->input('category', []));
+            $q->when(! empty($categories), function ($sub) use ($categories) {
+                $sub->whereHas('category', fn ($cq) => $cq->whereIn('slug', $categories));
             });
-        }
-
-        if ($request->boolean('featured')) {
-            $query->where('is_featured', true);
-        }
-
-        if ($request->boolean('new_arrival')) {
-            $query->where('is_new_arrival', true);
-        }
-
-        if ($request->boolean('best_selling')) {
-            $query->where('is_best_selling', true);
-        }
-
-        if ($request->filled('availability')) {
-            if ($request->availability === 'in_stock') {
-                $query->where('stock_quantity', '>', 0);
-            } elseif ($request->availability === 'out_of_stock') {
-                $query->where('stock_quantity', '<=', 0);
-            }
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhereHas('category', function ($cq) use ($search) {
-                        $cq->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('brand', function ($bq) use ($search) {
-                        $bq->where('name', 'like', "%{$search}%");
-                    });
+        })
+            ->when($request->has('color'), function ($q) use ($request) {
+                $colors = array_filter((array) $request->input('color', []));
+                $q->when(! empty($colors), fn ($sub) => $sub->whereIn('color', $colors));
+            })
+            ->when($request->has('fabric'), function ($q) use ($request) {
+                $fabrics = array_filter((array) $request->input('fabric', []));
+                $q->when(! empty($fabrics), fn ($sub) => $sub->whereIn('fabric', $fabrics));
+            })
+            ->when($request->has('occasion'), function ($q) use ($request) {
+                $occasions = array_filter((array) $request->input('occasion', []));
+                $q->when(! empty($occasions), fn ($sub) => $sub->whereIn('occasion', $occasions));
+            })
+            ->when($request->filled('price_range'), function ($q) use ($request) {
+                [$min, $max] = explode('-', $request->price_range);
+                $min = (float) $min;
+                $max = (float) $max;
+                $q->where(fn ($sub) => $sub
+                    ->where(fn ($s) => $s->whereNotNull('discount_price')->whereBetween('discount_price', [$min, $max]))
+                    ->orWhere(fn ($s) => $s->whereNull('discount_price')->whereBetween('price', [$min, $max]))
+                );
+            })
+            ->when($request->boolean('featured'), fn ($q) => $q->where('is_featured', true))
+            ->when($request->boolean('new_arrival'), fn ($q) => $q->where('is_new_arrival', true))
+            ->when($request->boolean('best_selling'), fn ($q) => $q->where('is_best_selling', true))
+            ->when($request->boolean('trending'), fn ($q) => $q->where('is_trending', true))
+            ->when($request->boolean('discounted'), fn ($q) => $q->whereNotNull('discount_price'))
+            ->when($request->has('availability'), function ($q) use ($request) {
+                $avail = array_filter((array) $request->input('availability', []));
+                if (in_array('in_stock', $avail) && ! in_array('out_of_stock', $avail)) {
+                    $q->where('stock_quantity', '>', 0);
+                } elseif (in_array('out_of_stock', $avail) && ! in_array('in_stock', $avail)) {
+                    $q->where('stock_quantity', '<=', 0);
+                }
+            })
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->search;
+                $q->where(fn ($sub) => $sub
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('category', fn ($cq) => $cq->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('brand', fn ($bq) => $bq->where('name', 'like', "%{$search}%"))
+                );
             });
-        }
 
         $sort = $request->sort;
         match ($sort) {
             'price_low' => $query->orderByRaw('COALESCE(discount_price, price) ASC'),
             'price_high' => $query->orderByRaw('COALESCE(discount_price, price) DESC'),
             'newest' => $query->latest(),
+            'oldest' => $query->oldest(),
             'rating' => $query->withAvg('reviews', 'rating')->orderByDesc('reviews_avg_rating'),
             'popularity' => $query->withCount('wishlists')->orderByDesc('wishlists_count'),
             default => $query->latest(),

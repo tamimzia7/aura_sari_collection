@@ -99,7 +99,7 @@ function confirmDelete(name, url) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = url;
-        form.innerHTML = '@csrf @method('DELETE')'.replace(/@csrf/g, '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').content + '">').replace(/@method\('DELETE'\)/g, '<input type="hidden" name="_method" value="DELETE">');
+        form.innerHTML = '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').content + '"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(form);
         form.submit();
     }

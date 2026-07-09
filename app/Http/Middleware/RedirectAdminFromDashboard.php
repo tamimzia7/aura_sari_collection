@@ -6,12 +6,12 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class RedirectAdminFromDashboard
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! auth()->user()->isAdmin()) {
-            return redirect()->route('dashboard.index');
+        if (auth()->check() && auth()->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
         }
 
         return $next($request);

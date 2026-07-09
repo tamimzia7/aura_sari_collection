@@ -1182,6 +1182,10 @@
             </div>
 
             <div class="navbar-right">
+                <a href="{{ route('home') }}" class="btn btn-soft-primary me-2" title="Back to Website" style="padding:6px 14px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                    <i class="fas fa-globe"></i>
+                    <span class="d-none d-md-inline">Back to Website</span>
+                </a>
                 <button class="btn-icon" title="Notifications">
                     <i class="fas fa-bell"></i>
                     <span class="dot"></span>
