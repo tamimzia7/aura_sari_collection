@@ -159,7 +159,7 @@
                                                     @endphp
                                                     <span class="badge bg-{{ $class }} rounded-pill">{{ ucfirst($order->status) }}</span>
                                                 </td>
-                                                <td class="fw-medium">₹{{ number_format($order->total, 2) }}</td>
+                                                <td class="fw-medium">₹{{ number_format($order->grand_total, 2) }}</td>
                                                 <td class="text-end pe-4">
                                                     <a href="{{ route('dashboard.order-details', $order->id) }}" class="btn btn-outline-dark btn-sm rounded-pill">View</a>
                                                 </td>

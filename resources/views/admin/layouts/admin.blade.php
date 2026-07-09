@@ -1044,7 +1044,7 @@
         </div>
 
         <nav class="sidebar-nav">
-            <div class="nav-label">Main Menu</div>
+            <div class="nav-label">Menu</div>
 
             <div class="nav-item">
                 <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -1054,17 +1054,24 @@
             </div>
 
             <div class="nav-item">
-                <a href="#productsMenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.collections.*') ? 'true' : 'false' }}">
+                <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
                     <i class="fas fa-tshirt"></i>
                     <span>Products</span>
-                    <i class="fas fa-chevron-right arrow"></i>
                 </a>
-                <ul class="sub-menu collapse {{ request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.collections.*') ? 'show' : '' }}" id="productsMenu">
-                    <li><a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}"><i class="fas fa-list"></i> All Products</a></li>
-                    <li><a href="{{ route('admin.products.create') }}" class="nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}"><i class="fas fa-plus"></i> Add New</a></li>
-                    <li><a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}"><i class="fas fa-tags"></i> Categories</a></li>
-                    <li><a href="{{ route('admin.collections.index') }}" class="nav-link {{ request()->routeIs('admin.collections.*') ? 'active' : '' }}"><i class="fas fa-layer-group"></i> Collections</a></li>
-                </ul>
+            </div>
+
+            <div class="nav-item">
+                <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="{{ route('admin.collections.index') }}" class="nav-link {{ request()->routeIs('admin.collections.*') ? 'active' : '' }}">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Collections</span>
+                </a>
             </div>
 
             <div class="nav-item">
@@ -1073,15 +1080,8 @@
                     <span>Orders</span>
                     @php $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count(); @endphp
                     @if($pendingOrdersCount > 0)
-                    <span class="badge bg-warning text-dark">{{ $pendingOrdersCount }}</span>
+                        <span class="badge bg-warning text-dark ms-auto">{{ $pendingOrdersCount }}</span>
                     @endif
-                </a>
-            </div>
-
-            <div class="nav-item">
-                <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
-                    <i class="fas fa-images"></i>
-                    <span>Banners</span>
                 </a>
             </div>
 
@@ -1092,23 +1092,21 @@
                 </a>
             </div>
 
-            <div class="nav-label">Management</div>
-
-            <div class="nav-item">
-                <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span>Coupons</span>
-                </a>
-            </div>
-
             <div class="nav-item">
                 <a href="{{ route('admin.reviews.index') }}" class="nav-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
                     <i class="fas fa-star"></i>
                     <span>Reviews</span>
                     @php $pendingReviewsCount = \App\Models\Review::where('is_approved', false)->count(); @endphp
                     @if($pendingReviewsCount > 0)
-                    <span class="badge bg-danger">{{ $pendingReviewsCount }}</span>
+                        <span class="badge bg-danger ms-auto">{{ $pendingReviewsCount }}</span>
                     @endif
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
+                    <i class="fas fa-images"></i>
+                    <span>Banners</span>
                 </a>
             </div>
 
@@ -1122,19 +1120,12 @@
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="fas fa-user-shield"></i>
-                    <span>Users</span>
+                <a href="{{ route('logout') }}" class="nav-link text-danger"
+                   onclick="event.preventDefault(); document.getElementById('logout-form-sidebar').submit();">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </a>
-            </div>
-
-            <div class="nav-label mt-3">Support</div>
-
-            <div class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Help Center</span>
-                </a>
+                <form id="logout-form-sidebar" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
             </div>
         </nav>
     </aside>

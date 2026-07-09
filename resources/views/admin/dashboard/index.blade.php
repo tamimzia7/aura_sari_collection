@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="page-header d-flex justify-content-between align-items-center">
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
         <h4>Dashboard</h4>
         <nav aria-label="breadcrumb">
@@ -13,16 +13,15 @@
             </ol>
         </nav>
     </div>
-    <div>
+    <div class="d-flex gap-2">
         <button class="btn btn-soft-primary" onclick="location.reload();">
             <i class="fas fa-sync-alt me-1"></i> Refresh
         </button>
     </div>
 </div>
 
-<!-- Stats Cards -->
-<div class="row g-4 mb-4">
-    <div class="col-xl-4 col-md-6">
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon purple">
                 <i class="fas fa-tshirt"></i>
@@ -33,7 +32,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon blue">
                 <i class="fas fa-tags"></i>
@@ -44,7 +43,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon indigo">
                 <i class="fas fa-layer-group"></i>
@@ -55,7 +54,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon orange">
                 <i class="fas fa-shopping-cart"></i>
@@ -66,29 +65,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-4 col-md-6">
-        <div class="stat-card">
-            <div class="stat-icon red">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-label">Pending Orders</div>
-                <div class="stat-value">{{ number_format($pendingOrders) }}</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-4 col-md-6">
-        <div class="stat-card">
-            <div class="stat-icon green">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-label">Completed Orders</div>
-                <div class="stat-value">{{ number_format($completedOrders) }}</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon blue">
                 <i class="fas fa-users"></i>
@@ -99,7 +76,18 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value">₹{{ number_format($totalRevenue, 0) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon green">
                 <i class="fas fa-box"></i>
@@ -110,7 +98,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon red">
                 <i class="fas fa-times-circle"></i>
@@ -123,20 +111,17 @@
     </div>
 </div>
 
-<!-- Charts Row -->
 <div class="row g-4 mb-4">
     <div class="col-xl-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Sales Overview</span>
-                <div>
-                    <select class="form-select form-select-sm" style="width:auto;display:inline-block;" id="salesPeriod">
-                        <option value="7">Last 7 Days</option>
-                        <option value="30" selected>Last 30 Days</option>
-                        <option value="90">Last 90 Days</option>
-                        <option value="365">This Year</option>
-                    </select>
-                </div>
+                <span><i class="fas fa-chart-line me-2"></i>Sales Overview</span>
+                <select class="form-select form-select-sm" style="width:auto;display:inline-block;" id="salesPeriod">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="365">This Year</option>
+                </select>
             </div>
             <div class="card-body">
                 <div class="chart-container">
@@ -148,25 +133,23 @@
     <div class="col-xl-4">
         <div class="card">
             <div class="card-header">
-                <span>Order Status</span>
+                <span><i class="fas fa-chart-pie me-2"></i>Order Status</span>
             </div>
             <div class="card-body">
                 <div class="chart-container">
                     <canvas id="orderStatusChart"></canvas>
                 </div>
-                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center" id="orderStatusLegend">
-                </div>
+                <div class="mt-3 d-flex flex-wrap gap-3 justify-content-center" id="orderStatusLegend"></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Orders & Customers -->
 <div class="row g-4">
     <div class="col-xl-8">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Recent Orders</span>
+                <span><i class="fas fa-clock me-2"></i>Recent Orders</span>
                 <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-primary">View All</a>
             </div>
             <div class="card-body p-0">
@@ -174,25 +157,34 @@
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>Order #</th>
+                                <th>Order</th>
                                 <th>Customer</th>
                                 <th>Date</th>
                                 <th>Status</th>
-                                <th>Total</th>
+                                <th class="text-end">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($recentOrders as $order)
                             <tr>
-                                <td><a href="{{ route('admin.orders.show', $order->id) }}" class="text-primary-custom text-decoration-none fw-semibold">#ORD-{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</a></td>
+                                <td>
+                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="text-primary-custom text-decoration-none fw-semibold">
+                                        #{{ $order->order_number }}
+                                    </a>
+                                </td>
                                 <td>{{ $order->user?->name ?? 'Guest' }}</td>
-                                <td>{{ $order->created_at->format('M j, Y') }}</td>
-                                <td><span class="badge-status {{ $order->status }}">{{ ucfirst($order->status) }}</span></td>
-                                <td>₹{{ number_format($order->grand_total, 0) }}</td>
+                                <td class="text-muted">{{ $order->created_at->format('M j, Y') }}</td>
+                                <td>
+                                    <span class="badge-status {{ $order->status }}">
+                                        <i class="fas {{ $order->status === 'pending' ? 'fa-clock' : ($order->status === 'processing' ? 'fa-spinner' : ($order->status === 'shipped' ? 'fa-truck' : ($order->status === 'delivered' ? 'fa-check-circle' : 'fa-times-circle'))) }} me-1"></i>
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-semibold">₹{{ number_format($order->grand_total, 0) }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">No recent orders found.</td>
+                                <td colspan="5" class="text-center py-5 text-muted">No orders yet.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -201,32 +193,42 @@
             </div>
         </div>
     </div>
+
     <div class="col-xl-4">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Recent Customers</span>
-                <a href="{{ route('admin.customers.index') }}" class="btn btn-sm btn-soft-primary">View All</a>
+                <span><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Products</span>
+                <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-soft-primary">View All</a>
             </div>
             <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    @forelse ($recentCustomers as $customer)
-                    @php
-                        $colors = ['#8B5CF6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#ec4899'];
-                        $bg = $colors[$loop->index % count($colors)];
-                        $initials = collect(explode(' ', $customer->name))->map(fn($part) => strtoupper(substr($part, 0, 1)))->implode('');
-                    @endphp
-                    <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
-                        <div class="avatar-sm" style="background: {{ $bg }};">{{ $initials }}</div>
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:14px;">{{ $customer->name }}</div>
-                            <div class="small text-muted">{{ $customer->email }}</div>
+                @if($lowStockProducts->count() > 0)
+                    <div class="list-group list-group-flush">
+                        @foreach($lowStockProducts as $product)
+                        <div class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom">
+                            <div class="avatar-md" style="background: #fef3c7; color: #d97706;">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-semibold text-truncate" style="font-size:14px;">
+                                    <a href="{{ route('admin.products.edit', $product->id) }}" class="text-decoration-none text-dark">{{ $product->name }}</a>
+                                </div>
+                                <div class="small text-muted">{{ $product->category?->name ?? 'No category' }}</div>
+                            </div>
+                            <div class="text-end flex-shrink-0">
+                                <div class="fw-bold {{ $product->stock_quantity <= 2 ? 'text-danger' : 'text-warning' }}" style="font-size:16px;">
+                                    {{ $product->stock_quantity }}
+                                </div>
+                                <div class="small text-muted">left</div>
+                            </div>
                         </div>
-                        <span class="text-muted" style="font-size:12px;">{{ $customer->created_at->format('M j, Y') }}</span>
+                        @endforeach
                     </div>
-                    @empty
-                    <div class="list-group-item text-center py-4 text-muted border-0">No recent customers found.</div>
-                    @endforelse
-                </div>
+                @else
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-check-circle fa-2x mb-2" style="color: #10b981;"></i>
+                        <p class="mb-0">All products are well stocked.</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -236,11 +238,8 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    // Sales Chart
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
-
     const labels = [];
     const data = [];
     for (let i = 11; i >= 0; i--) {
@@ -248,8 +247,7 @@ $(document).ready(function() {
         labels.push(months[monthIndex]);
         data.push(Math.floor(Math.random() * 8000) + 2000);
     }
-
-    new Chart(salesCtx, {
+    new Chart(document.getElementById('salesChart'), {
         type: 'line',
         data: {
             labels: labels,
@@ -272,63 +270,43 @@ $(document).ready(function() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: '#1a1d23',
-                    titleFont: { size: 13 },
-                    bodyFont: { size: 12 },
                     padding: 12,
                     cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
-                            return '$' + context.parsed.y.toLocaleString();
+                            return '₹' + context.parsed.y.toLocaleString('en-IN');
                         }
                     }
                 }
             },
             scales: {
                 x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: { size: 11 },
-                        color: '#9ca3af'
-                    }
+                    grid: { display: false },
+                    ticks: { font: { size: 11 }, color: '#9ca3af' }
                 },
                 y: {
-                    grid: {
-                        color: 'rgba(0,0,0,0.04)'
-                    },
+                    grid: { color: 'rgba(0,0,0,0.04)' },
                     ticks: {
                         font: { size: 11 },
                         color: '#9ca3af',
                         callback: function(value) {
-                            return '$' + value.toLocaleString();
+                            return '₹' + value.toLocaleString('en-IN');
                         }
                     }
                 }
             }
         }
     });
-
-    // Order Status Donut Chart
-    const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
-    const statusData = {
-        labels: ['Delivered', 'Processing', 'Shipped', 'Pending', 'Cancelled'],
-        data: [1420, 680, 520, 340, 182],
-        colors: ['#10b981', '#3b82f6', '#f59e0b', '#8B5CF6', '#ef4444']
-    };
-
-    new Chart(statusCtx, {
+    new Chart(document.getElementById('orderStatusChart'), {
         type: 'doughnut',
         data: {
-            labels: statusData.labels,
+            labels: ['Delivered', 'Processing', 'Shipped', 'Pending', 'Cancelled'],
             datasets: [{
-                data: statusData.data,
-                backgroundColor: statusData.colors,
+                data: [{{ $completedOrders }}, {{ $processingOrders }}, 0, {{ $pendingOrders }}, 0],
+                backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8B5CF6', '#ef4444'],
                 borderWidth: 3,
                 borderColor: '#fff',
                 hoverOffset: 6
@@ -339,9 +317,7 @@ $(document).ready(function() {
             maintainAspectRatio: false,
             cutout: '70%',
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: '#1a1d23',
                     padding: 12,
@@ -349,7 +325,7 @@ $(document).ready(function() {
                     callbacks: {
                         label: function(context) {
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const pct = ((context.parsed / total) * 100).toFixed(1);
+                            const pct = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
                             return context.label + ': ' + context.parsed + ' (' + pct + '%)';
                         }
                     }
@@ -373,21 +349,20 @@ $(document).ready(function() {
             }
         }]
     });
-
-    // Build legend for donut chart
     const legend = document.getElementById('orderStatusLegend');
-    statusData.labels.forEach(function(label, i) {
-        const item = document.createElement('div');
-        item.className = 'd-flex align-items-center gap-1';
-        item.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:' + statusData.colors[i] + ';display:inline-block;"></span> ' +
-            '<span style="font-size:12px;color:#6c757d;">' + label + '</span>';
-        legend.appendChild(item);
-    });
-
-    // Sales period change
-    $('#salesPeriod').on('change', function() {
-        alert('Sales period changed to: ' + $(this).val() + ' days. Will fetch from server.');
-    });
+    if (legend) {
+        const items = [
+            { label: 'Delivered', color: '#10b981' },
+            { label: 'Processing', color: '#3b82f6' },
+            { label: 'Pending', color: '#8B5CF6' },
+        ];
+        items.forEach(function(item) {
+            const el = document.createElement('div');
+            el.className = 'd-flex align-items-center gap-1';
+            el.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:' + item.color + ';display:inline-block;"></span> <span style="font-size:12px;color:#6c757d;">' + item.label + '</span>';
+            legend.appendChild(el);
+        });
+    }
 });
 </script>
 @endpush

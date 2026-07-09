@@ -45,14 +45,6 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/count', [CartController::class, 'getCount'])->name('count');
 });
 
-// Wishlist (authenticated)
-Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
-Route::prefix('wishlist')->name('wishlist.')->group(function () {
-    Route::post('/toggle', [WishlistController::class, 'add'])->name('toggle');
-    Route::post('/remove', [WishlistController::class, 'remove'])->name('remove');
-    Route::post('/move-to-cart', [WishlistController::class, 'moveToCart'])->name('move-to-cart');
-});
-
 // Auth routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
@@ -105,6 +97,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
         Route::put('/password', [DashboardController::class, 'updatePassword'])->name('password.update');
         Route::get('/wishlist', [DashboardController::class, 'wishlist'])->name('wishlist');
+    });
+
+    // Wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    Route::prefix('wishlist')->name('wishlist.')->group(function () {
+        Route::post('/toggle', [WishlistController::class, 'add'])->name('toggle');
+        Route::post('/remove', [WishlistController::class, 'remove'])->name('remove');
+        Route::post('/move-to-cart', [WishlistController::class, 'moveToCart'])->name('move-to-cart');
     });
 });
 

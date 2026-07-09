@@ -11,20 +11,17 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $user = Auth::user();
         $totalOrders = Order::where('user_id', $user->id)->count();
         $pendingOrders = Order::where('user_id', $user->id)->where('status', 'pending')->count();
-        $totalWishlist = Wishlist::where('user_id', $user->id)->count();
+        $wishlistCount = Wishlist::where('user_id', $user->id)->count();
+        $deliveredOrders = Order::where('user_id', $user->id)->where('status', 'delivered')->count();
         $recentOrders = Order::where('user_id', $user->id)->latest()->take(5)->get();
+        $addresses = Address::where('user_id', $user->id)->get();
 
-        return view('dashboard.index', compact('user', 'totalOrders', 'pendingOrders', 'totalWishlist', 'recentOrders'));
+        return view('dashboard.index', compact('user', 'totalOrders', 'pendingOrders', 'wishlistCount', 'deliveredOrders', 'recentOrders', 'addresses'));
     }
 
     public function profile()

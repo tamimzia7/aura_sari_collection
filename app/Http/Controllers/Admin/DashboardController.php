@@ -26,6 +26,12 @@ class DashboardController extends Controller
         $totalRevenue = Order::whereIn('status', ['delivered', 'completed'])->sum('grand_total');
         $recentOrders = Order::with('user')->latest()->take(10)->get();
         $recentCustomers = User::where('role', '!=', 'admin')->latest()->take(6)->get();
+        $lowStockProducts = Product::with('category')
+            ->where('stock_quantity', '>', 0)
+            ->where('stock_quantity', '<=', 5)
+            ->orderBy('stock_quantity')
+            ->take(10)
+            ->get();
 
         return view('admin.dashboard.index', compact(
             'totalProducts',
@@ -41,6 +47,7 @@ class DashboardController extends Controller
             'totalRevenue',
             'recentOrders',
             'recentCustomers',
+            'lowStockProducts',
         ));
     }
 }

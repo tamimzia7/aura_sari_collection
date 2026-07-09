@@ -91,7 +91,7 @@
                                                 <td class="ps-4 fw-medium">#{{ $order->order_number }}</td>
                                                 <td class="text-muted small">{{ $order->created_at->format('d M, Y') }}</td>
                                                 <td class="small">{{ $order->items_count ?? $order->items->count() }}</td>
-                                                <td class="fw-medium">₹{{ number_format($order->total, 2) }}</td>
+                                                <td class="fw-medium">₹{{ number_format($order->grand_total, 2) }}</td>
                                                 <td>
                                                     @php
                                                         $statusClasses = [

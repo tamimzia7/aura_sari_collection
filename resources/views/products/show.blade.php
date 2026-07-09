@@ -747,7 +747,7 @@
                 product_id: productId
             },
             success: function(response) {
-                if (response.status === 'added') {
+                if (response.added) {
                     icon.classList.remove('far');
                     icon.classList.add('fas');
                     button.classList.add('active');
