@@ -39,6 +39,8 @@ class Product extends Model
         'is_best_selling',
         'is_trending',
         'is_discounted',
+        'home_section',
+        'new_section',
         'status',
         'meta_title',
         'meta_description',

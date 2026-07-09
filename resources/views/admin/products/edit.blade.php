@@ -256,6 +256,30 @@
             </div>
 
             <div class="card">
+                <div class="card-header">Home Page Section</div>
+                <div class="card-body">
+                    <select name="home_section" class="form-select">
+                        <option value="">None</option>
+                        @foreach(['Hero Collection','Featured Collection','Premium Collection','Luxury Collection','Wedding Collection','Festive Collection','Trending Collection',"Editor's Choice"] as $section)
+                            <option value="{{ $section }}" {{ old('home_section', $product->home_section) === $section ? 'selected' : '' }}>{{ $section }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">New Page Section</div>
+                <div class="card-body">
+                    <select name="new_section" class="form-select">
+                        <option value="">None</option>
+                        @foreach(['New Arrivals','Just Added','Latest Collection','Fresh Picks','New This Week','New This Month'] as $section)
+                            <option value="{{ $section }}" {{ old('new_section', $product->new_section) === $section ? 'selected' : '' }}>{{ $section }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
                 <div class="card-header">Special Choices</div>
                 <div class="card-body">
                     <div class="d-flex flex-column gap-3">

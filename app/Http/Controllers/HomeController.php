@@ -11,37 +11,30 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featuredProducts = Product::with(['category', 'images'])
-            ->active()
-            ->featured()
-            ->latest()
-            ->take(8)
-            ->get();
+        $sections = [
+            'Hero Collection',
+            'Featured Collection',
+            'Premium Collection',
+            'Luxury Collection',
+            'Wedding Collection',
+            'Festive Collection',
+            'Trending Collection',
+            "Editor's Choice",
+        ];
+
+        $sectionProducts = [];
+        foreach ($sections as $section) {
+            $sectionProducts[$section] = Product::with(['category', 'images'])
+                ->active()
+                ->where('home_section', $section)
+                ->latest()
+                ->take(8)
+                ->get();
+        }
 
         $newArrivals = Product::with(['category', 'images'])
             ->active()
-            ->newArrivals()
-            ->latest()
-            ->take(8)
-            ->get();
-
-        $trendingProducts = Product::with(['category', 'images'])
-            ->active()
-            ->trending()
-            ->latest()
-            ->take(8)
-            ->get();
-
-        $bestSelling = Product::with(['category', 'images'])
-            ->active()
-            ->bestSelling()
-            ->latest()
-            ->take(8)
-            ->get();
-
-        $discountedProducts = Product::with(['category', 'images'])
-            ->active()
-            ->discounted()
+            ->where('new_section', 'New Arrivals')
             ->latest()
             ->take(8)
             ->get();
@@ -59,11 +52,8 @@ class HomeController extends Controller
             ->get();
 
         return view('home.index', compact(
-            'featuredProducts',
+            'sectionProducts',
             'newArrivals',
-            'trendingProducts',
-            'bestSelling',
-            'discountedProducts',
             'categories',
             'collections',
             'banners'

@@ -134,6 +134,14 @@
                         </td>
                     </tr>
                     <tr>
+                        <td class="text-muted">Home Page Section</td>
+                        <td class="fw-semibold">{{ $product->home_section ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">New Page Section</td>
+                        <td class="fw-semibold">{{ $product->new_section ?? '—' }}</td>
+                    </tr>
+                    <tr>
                         <td class="text-muted">Created</td>
                         <td class="fw-semibold">{{ $product->created_at->format('M j, Y g:i A') }}</td>
                     </tr>

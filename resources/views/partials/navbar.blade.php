@@ -15,7 +15,10 @@
                     <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('collection*') ? 'active' : '' }}" href="{{ route('collection') }}">Collections</a>
+                    <a class="nav-link {{ request()->routeIs('home') ? '' : '' }}" href="{{ request()->routeIs('home') ? '#collection' : route('home') . '#collection' }}">Collection</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ request()->routeIs('home') ? '#new' : route('home') . '#new' }}">New</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}" href="{{ route('products.index') }}">Shop</a>

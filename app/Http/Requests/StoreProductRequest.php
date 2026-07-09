@@ -37,6 +37,8 @@ class StoreProductRequest extends FormRequest
             'is_best_selling' => ['boolean'],
             'is_trending' => ['nullable', 'boolean'],
             'is_discounted' => ['nullable', 'boolean'],
+            'home_section' => ['nullable', 'string', 'max:255'],
+            'new_section' => ['nullable', 'string', 'max:255'],
             'stock_status' => ['nullable', 'in:in_stock,out_of_stock'],
             'status' => ['boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],

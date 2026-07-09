@@ -22,6 +22,11 @@
 
 html { scroll-behavior: smooth; }
 
+#collection,
+#new {
+    scroll-margin-top: 100px;
+}
+
 body {
   background: var(--aura-dark);
   color: #fff;
@@ -511,7 +516,7 @@ body {
 }
 
 /* ─── NEW ARRIVALS ─── */
-#new-arrivals {
+#new {
   background: var(--aura-deeper);
 }
 .new-arrivals-grid {
@@ -677,9 +682,9 @@ footer {
   <nav class="aura-nav">
     <a href="{{ route('home') }}" class="aura-logo">AURA</a>
     <ul class="aura-nav-links">
-      <li><a href="#featured-collection">Collection</a></li>
+      <li><a href="#collection">Collection</a></li>
       <li><a href="#brand-story">Story</a></li>
-      <li><a href="#new-arrivals">New</a></li>
+      <li><a href="#new">New</a></li>
       <li><a href="#newsletter">Connect</a></li>
     </ul>
     <div class="aura-nav-icons">
@@ -753,63 +758,16 @@ footer {
   </div>
 </div>
 
-<!-- ═══════════ FEATURED COLLECTION ═══════════ -->
-<section id="featured-collection" class="section">
-  <div style="max-width:1200px;margin:0 auto;">
-    <p class="section-label">Curated Selection</p>
-    <h2 class="section-title">The Collection</h2>
-    <p class="section-subtitle">Each piece selected at the intersection of heritage and the unseen.</p>
-
-    <div class="featured-scroll" id="featuredScroll">
-      @forelse($featuredProducts as $product)
-        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
-        <div class="featured-card">
-          <div class="card-image">
-            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\' fill=\'none\'><path d=\'M40 80 Q100 30 160 80 Q180 100 160 120 Q100 170 40 120 Q20 100 40 80Z\' stroke=\'rgba(212,175,55,0.15)\' stroke-width=\'1\'/></svg>'">
-          </div>
-          <h3>{{ $product->name }}</h3>
-          <p class="card-desc">{{ $product->short_description ?: Str::limit($product->description, 80) }}</p>
-          <div class="card-price">₹{{ number_format($product->discounted_price, 0) }}</div>
-        </div>
-      @empty
-        <div class="featured-card">
-          <div class="card-image">
-            <svg viewBox="0 0 200 200" fill="none"><path d="M40 80 Q100 30 200 80 Q200 100 200 120 Q100 170 40 120 Q20 100 40 80Z" stroke="rgba(212,175,55,0.15)" stroke-width="1"/></svg>
-          </div>
-          <h3>Coming Soon</h3>
-          <p class="card-desc">Featured products will appear here once added.</p>
-          <div class="card-price">—</div>
-        </div>
-      @endforelse
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ BRAND STORY ═══════════ -->
-<section id="brand-story">
-  <div class="brand-story-inner">
-    <div class="brand-mark">Since 2024</div>
-    <div class="brand-divider"></div>
-    <p class="brand-quote">
-      "We do not simply weave fabric.<br>
-      We capture the interval between stars&mdash;<br>
-      where light hesitates before it becomes color."
-    </p>
-    <div class="brand-divider"></div>
-    <p class="brand-author">— AURA ATELIER</p>
-  </div>
-</section>
-
 <!-- ═══════════ NEW ARRIVALS ═══════════ -->
-<section id="new-arrivals" class="section">
+<section id="new" class="section" style="background: var(--aura-dark);">
   <div style="max-width:1200px;margin:0 auto;">
     <p class="section-label">Latest Drops</p>
     <h2 class="section-title">New Arrivals</h2>
     <p class="section-subtitle">Fresh from the celestial loom.</p>
 
-<div class="new-arrivals-grid">
+    <div class="new-arrivals-grid">
       @forelse($newArrivals as $product)
-        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
+        @php $img = $product->images->first()->image_path ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
         <div class="arrival-card">
           <span class="new-badge">New</span>
           <div class="arrival-img">
@@ -817,7 +775,7 @@ footer {
           </div>
           <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
           <h4>{{ $product->name }}</h4>
-          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
+          <div class="arrival-price">₹{{ number_format($product->discounted_price ?? $product->price, 0) }}</div>
         </div>
       @empty
         <div class="arrival-card">
@@ -825,114 +783,92 @@ footer {
           <div class="arrival-img">
             <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
           </div>
-          <div class="arrival-category">—</div>
+          <div class="arrival-category">&mdash;</div>
           <h4>Coming Soon</h4>
-          <div class="arrival-price">—</div>
+          <div class="arrival-price">&mdash;</div>
         </div>
       @endforelse
     </div>
   </div>
 </section>
 
-<!-- ═══════════ BEST SELLING ═══════════ -->
-<section id="best-selling" class="section" style="background: linear-gradient(180deg, var(--aura-dark) 0%, var(--aura-deeper) 100%);">
-  <div style="max-width:1200px;margin:0 auto;">
-    <p class="section-label">Most Loved</p>
-    <h2 class="section-title">Best Selling</h2>
-    <p class="section-subtitle">Curated favourites chosen by our community.</p>
+<!-- ═══════════ BRAND STORY ═══════════ -->
 
-    <div class="new-arrivals-grid">
-      @forelse($bestSelling as $product)
-        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
-        <div class="arrival-card">
-          <div class="arrival-img">
-            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
-          </div>
-          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
-          <h4>{{ $product->name }}</h4>
-          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
-        </div>
-      @empty
-        <div class="arrival-card">
-          <div class="arrival-img">
-            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
-          </div>
-          <div class="arrival-category">—</div>
-          <h4>Coming Soon</h4>
-          <div class="arrival-price">—</div>
-        </div>
-      @endforelse
+<section id="brand-story">
+  <div class="brand-story-inner">
+    <div class="brand-mark">Since 2024</div>
+    <div class="brand-divider"></div>
+    <div class="brand-quote">
+      "We do not simply weave fabric.<br>
+      We capture the interval between stars&mdash;<br>
+      where light hesitates before it becomes color."
     </div>
+    <div class="brand-divider"></div>
+    <div class="brand-author">&mdash; AURA ATELIER</div>
   </div>
 </section>
 
-<!-- ═══════════ TRENDING ═══════════ -->
-<section id="trending" class="section" style="background: var(--aura-dark);">
-  <div style="max-width:1200px;margin:0 auto;">
-    <p class="section-label">Trending Now</p>
-    <h2 class="section-title">Trending</h2>
-    <p class="section-subtitle">What everyone is talking about this season.</p>
+<div id="collection">
 
-    <div class="new-arrivals-grid">
-      @forelse($trendingProducts as $product)
-        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
-        <div class="arrival-card">
-          <div class="arrival-img">
-            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
-          </div>
-          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
-          <h4>{{ $product->name }}</h4>
-          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
-        </div>
-      @empty
-        <div class="arrival-card">
-          <div class="arrival-img">
-            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q200 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
-          </div>
-          <div class="arrival-category">—</div>
-          <h4>Coming Soon</h4>
-          <div class="arrival-price">—</div>
-        </div>
-      @endforelse
-    </div>
-  </div>
-</section>
+@php
+    $homeSectionConfig = [
+        "Hero Collection" => ["id" => "hero-collection", "label" => "Curated Selection", "title" => "The Collection", "subtitle" => "Each piece selected at the intersection of heritage and the unseen.", "scroll" => true],
+        "Featured Collection" => ["id" => "featured-collection", "label" => "Editor\'s Pick", "title" => "Featured Collection", "subtitle" => "Handpicked for those who seek the extraordinary.", "scroll" => false],
+        "Premium Collection" => ["id" => "premium-collection", "label" => "Exclusive", "title" => "Premium Collection", "subtitle" => "Our finest selection for the discerning eye.", "scroll" => false],
+        "Luxury Collection" => ["id" => "luxury-collection", "label" => "Luxury", "title" => "Luxury Collection", "subtitle" => "Opulence redefined, one drape at a time.", "scroll" => false],
+        "Wedding Collection" => ["id" => "wedding-collection", "label" => "Bridal", "title" => "Wedding Collection", "subtitle" => "For the most beautiful chapter of your story.", "scroll" => false],
+        "Festive Collection" => ["id" => "festive-collection", "label" => "Celebration", "title" => "Festive Collection", "subtitle" => "Drape in the colours of joy and tradition.", "scroll" => false],
+        "Trending Collection" => ["id" => "trending-collection", "label" => "Trending Now", "title" => "Trending Collection", "subtitle" => "What everyone is talking about this season.", "scroll" => false],
+        "Editor\'s Choice" => ["id" => "editors-choice", "label" => "Staff Pick", "title" => "Editor\'s Choice", "subtitle" => "Selected by our team for its exceptional beauty.", "scroll" => false],
+    ];
+@endphp
 
-<!-- ═══════════ DISCOUNTED ═══════════ -->
-<section id="discounted" class="section" style="background: radial-gradient(ellipse at 50% 30%, rgba(30,10,10,1), var(--aura-deeper) 60%);">
-  <div style="max-width:1200px;margin:0 auto;">
-    <p class="section-label">Special Offers</p>
-    <h2 class="section-title">Discounted</h2>
-    <p class="section-subtitle">Exclusive pieces at special prices, for a limited time.</p>
+@foreach($sectionProducts as $sectionName => $products)
+    @php
+        $cfg = $homeSectionConfig[$sectionName] ?? ["id" => Str::slug($sectionName), "label" => $sectionName, "title" => $sectionName, "subtitle" => "", "scroll" => false];
+    @endphp
+    @if($products->isNotEmpty())
+    <section id="{{ $cfg["id"] }}" class="section" style="background: {{ $loop->index % 2 === 0 ? "linear-gradient(180deg, var(--aura-deeper) 0%, var(--aura-dark) 100%)" : "var(--aura-dark)" }};">
+      <div style="max-width:1200px;margin:0 auto;">
+        <p class="section-label">{{ $cfg["label"] }}</p>
+        <h2 class="section-title">{{ $cfg["title"] }}</h2>
+        @if($cfg["subtitle"])
+            <p class="section-subtitle">{{ $cfg["subtitle"] }}</p>
+        @endif
 
-    <div class="new-arrivals-grid">
-      @forelse($discountedProducts as $product)
-        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
-        <div class="arrival-card">
-          <div class="arrival-img position-relative">
-            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
-            @if($product->discount_percentage)
-              <span style="position:absolute;top:0.5rem;right:0.5rem;background:#dc2626;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.6rem;font-weight:600;">-{{ $product->discount_percentage }}%</span>
+        @if($cfg["scroll"])
+        <div class="featured-scroll" id="scroll-{{ $cfg["id"] }}">
+        @else
+        <div class="new-arrivals-grid">
+        @endif
+          @foreach($products as $product)
+            @php $img = $product->image_url ?? "https://placehold.co/300x400?text=No+Image"; @endphp
+            @if($cfg["scroll"])
+            <div class="featured-card">
+              <div class="card-image">
+                <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\' fill=\'none\'><path d=\'M40 80 Q100 30 200 80 Q200 100 200 120 Q100 170 40 120 Q20 100 40 80Z\' stroke=\'rgba(212,175,55,0.15)\' stroke-width=\'1\'/></svg>'"
+              </div>
+              <h3>{{ $product->name }}</h3>
+              <p class="card-desc">{{ $product->short_description ?: Str::limit($product->description, 80) }}</p>
+              <p class="card-price">₹{{ number_format($product->discounted_price, 0) }}</p>
+            </div>
+            @else
+            <div class="arrival-card">
+              <div class="arrival-img">
+                <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
+              </div>
+              <p class="arrival-category">{{ $product->category?->name ?? "General" }}</p>
+              <h4>{{ $product->name }}</h4>
+              <p class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</p>
+            </div>
             @endif
-          </div>
-          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
-          <h4>{{ $product->name }}</h4>
-          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
+          @endforeach
         </div>
-      @empty
-        <div class="arrival-card">
-          <div class="arrival-img">
-            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q170 105 200 125 Q200 170 100 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
-          </div>
-          <div class="arrival-category">—</div>
-          <h4>Coming Soon</h4>
-          <div class="arrival-price">—</div>
-        </div>
-      @endforelse
-    </div>
-  </div>
-</section>
-
+      </div>
+    </section>
+    @endif
+@endforeach
+</div>
 <!-- ═══════════ NEWSLETTER ═══════════ -->
 <section id="newsletter">
   <div class="newsletter-inner">
@@ -1258,13 +1194,12 @@ document.addEventListener('DOMContentLoaded', () => {
       ease: 'power3.out',
     });
   };
-  sectionReveal('#featured-collection');
-  sectionReveal('#new-arrivals');
+  sectionReveal('#collection');
 
-  /* Featured Collection cards stagger */
+  /* Collection cards stagger */
   gsap.from('.featured-card', {
     y: 60, opacity: 0, duration: 0.8, stagger: 0.15,
-    scrollTrigger: { trigger: '#featured-collection', start: 'top 75%', toggleActions: 'play none none none' },
+    scrollTrigger: { trigger: '#collection', start: 'top 75%', toggleActions: 'play none none none' },
     ease: 'power3.out',
   });
 
@@ -1278,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* New Arrivals stagger */
   gsap.from('.arrival-card', {
     y: 50, opacity: 0, duration: 0.7, stagger: 0.12,
-    scrollTrigger: { trigger: '#new-arrivals', start: 'top 75%', toggleActions: 'play none none none' },
+    scrollTrigger: { trigger: '#new', start: 'top 75%', toggleActions: 'play none none none' },
     ease: 'power3.out',
   });
 
