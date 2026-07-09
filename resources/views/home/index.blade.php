@@ -694,6 +694,7 @@ footer {
       <li><a href="#brand-story">Story</a></li>
       <li><a href="#new">New</a></li>
       <li><a href="#newsletter">Connect</a></li>
+      <li><a href="{{ route('collection') }}" class="{{ request()->routeIs('collection') ? 'active' : '' }}">All Collections</a></li>
     </ul>
     <div class="aura-nav-icons">
       <a href="{{ route('products.search') }}" aria-label="Search"><i class="fas fa-search"></i></a>
