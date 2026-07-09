@@ -42,7 +42,7 @@
                         <td>
                             @if($collection->image)
                                 <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;border:1px solid #e9ecef;">
-                                    <img src="{{ asset('storage/' . $collection->image) }}" alt="{{ $collection->name }}" style="width:100%;height:100%;object-fit:cover;">
+                                    <img src="{{ asset($collection->image) }}" alt="{{ $collection->name }}" style="width:100%;height:100%;object-fit:cover;">
                                 </div>
                             @else
                                 <div style="width:40px;height:40px;border-radius:8px;background:#f1f3f5;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--primary-color);">

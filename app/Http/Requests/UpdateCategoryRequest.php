@@ -18,9 +18,9 @@ class UpdateCategoryRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', Rule::unique('categories', 'slug')->ignore($categoryId)],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($categoryId)],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'parent_id' => ['nullable', 'exists:categories,id'],
             'status' => ['boolean'],
             'sort_order' => ['integer', 'min:0'],

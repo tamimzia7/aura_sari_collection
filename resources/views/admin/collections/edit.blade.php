@@ -73,7 +73,7 @@
                     <div class="image-preview" id="imagePreview">
                         @if($collection->image)
                         <div class="preview-item" id="existingImage">
-                            <img src="{{ asset('storage/' . $collection->image) }}" alt="{{ $collection->name }}">
+                            <img src="{{ asset($collection->image) }}" alt="{{ $collection->name }}">
                             <button type="button" class="remove-btn" onclick="removeImage()" title="Remove image">
                                 <i class="fas fa-times"></i>
                             </button>

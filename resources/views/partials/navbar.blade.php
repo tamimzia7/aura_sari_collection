@@ -37,7 +37,7 @@
                     <i class="far fa-heart"></i>
                     @auth
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill aura-badge wishlist-count" id="wishlistCount">
-                            {{ Auth::user()->wishlist()->count() }}
+                            {{ Auth::user()->wishlists()->count() }}
                         </span>
                     @endauth
                 </a>

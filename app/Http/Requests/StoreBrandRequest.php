@@ -15,9 +15,9 @@ class StoreBrandRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'unique:brands,slug'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:brands,slug'],
             'description' => ['nullable', 'string'],
-            'logo' => ['nullable', 'string'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'status' => ['boolean'],
         ];
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
 use App\Models\Brand;
+use Illuminate\Support\Facades\Storage;
 
 class BrandController extends Controller
 {
@@ -23,7 +24,13 @@ class BrandController extends Controller
 
     public function store(StoreBrandRequest $request)
     {
-        Brand::create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $data['logo'] = 'storage/'.$request->file('logo')->store('brands', 'public');
+        }
+
+        Brand::create($data);
 
         return redirect()->route('admin.brands.index')
             ->with('success', 'Brand created successfully');
@@ -36,7 +43,16 @@ class BrandController extends Controller
 
     public function update(UpdateBrandRequest $request, Brand $brand)
     {
-        $brand->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            if ($brand->logo) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $brand->logo));
+            }
+            $data['logo'] = 'storage/'.$request->file('logo')->store('brands', 'public');
+        }
+
+        $brand->update($data);
 
         return redirect()->route('admin.brands.index')
             ->with('success', 'Brand updated successfully');
@@ -44,6 +60,10 @@ class BrandController extends Controller
 
     public function destroy(Brand $brand)
     {
+        if ($brand->logo) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $brand->logo));
+        }
+
         $brand->products()->update(['brand_id' => null]);
         $brand->delete();
 

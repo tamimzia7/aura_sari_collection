@@ -62,6 +62,7 @@ class ProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_new_arrival'] = $request->boolean('is_new_arrival');
         $data['is_best_selling'] = $request->boolean('is_best_selling');
+        $data['is_trending'] = $request->boolean('is_trending');
         $data['status'] = $request->boolean('status', true);
 
         $product = Product::create($data);
@@ -102,6 +103,7 @@ class ProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_new_arrival'] = $request->boolean('is_new_arrival');
         $data['is_best_selling'] = $request->boolean('is_best_selling');
+        $data['is_trending'] = $request->boolean('is_trending');
         $data['status'] = $request->boolean('status', true);
 
         $product->update($data);
@@ -123,7 +125,7 @@ class ProductController extends Controller
         }
 
         if ($request->filled('remove_images')) {
-            $removeIds = (array) $request->input('remove_images', []);
+            $removeIds = explode(',', $request->input('remove_images', ''));
             $images = ProductImage::whereIn('id', $removeIds)->where('product_id', $product->id)->get();
 
             foreach ($images as $image) {

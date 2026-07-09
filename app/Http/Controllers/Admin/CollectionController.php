@@ -33,8 +33,7 @@ class CollectionController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/collections');
-            $validated['image'] = str_replace('public/', 'storage/', $path);
+            $validated['image'] = 'storage/'.$request->file('image')->store('collections', 'public');
         }
 
         Collection::create($validated);
@@ -61,12 +60,10 @@ class CollectionController extends Controller
 
         if ($request->hasFile('image')) {
             if ($collection->image) {
-                $oldPath = str_replace('storage/', 'public/', $collection->image);
-                Storage::delete($oldPath);
+                Storage::disk('public')->delete(str_replace('storage/', '', $collection->image));
             }
 
-            $path = $request->file('image')->store('public/collections');
-            $validated['image'] = str_replace('public/', 'storage/', $path);
+            $validated['image'] = 'storage/'.$request->file('image')->store('collections', 'public');
         }
 
         $collection->update($validated);
@@ -78,8 +75,7 @@ class CollectionController extends Controller
     public function destroy(Collection $collection)
     {
         if ($collection->image) {
-            $path = str_replace('storage/', 'public/', $collection->image);
-            Storage::delete($path);
+            Storage::disk('public')->delete(str_replace('storage/', '', $collection->image));
         }
 
         $collection->delete();

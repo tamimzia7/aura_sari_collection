@@ -58,7 +58,6 @@ $groups = [
         <div class="col-lg-8">
             @foreach (['general', 'contact'] as $groupKey)
                 @php $group = $groups[$groupKey]; @endphp
-                @if ($settings->has($groupKey))
                 <div class="card mb-4">
                     <div class="card-header">
                         <i class="fas {{ $group['icon'] }} me-2"></i> {{ $group['label'] }}
@@ -108,14 +107,12 @@ $groups = [
                         </div>
                     </div>
                 </div>
-                @endif
             @endforeach
         </div>
 
         <div class="col-lg-4">
             @foreach (['social', 'appearance'] as $groupKey)
                 @php $group = $groups[$groupKey]; @endphp
-                @if ($settings->has($groupKey))
                 <div class="card mb-4">
                     <div class="card-header">
                         <i class="fas {{ $group['icon'] }} me-2"></i> {{ $group['label'] }}
@@ -167,7 +164,6 @@ $groups = [
                         </div>
                     </div>
                 </div>
-                @endif
             @endforeach
 
             <div class="card">

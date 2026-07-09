@@ -152,7 +152,7 @@
                                     @if($image->is_primary)
                                         <span class="badge bg-warning text-dark" style="position:absolute;bottom:4px;left:4px;font-size:10px;">Primary</span>
                                     @else
-                                        <button type="button" class="badge bg-secondary" style="position:absolute;bottom:4px;left:4px;font-size:10px;cursor:pointer;border:none;" onclick="setPrimary({{ $image->id }})" title="Set as primary">Set Primary</button>
+                                        <button type="button" class="badge bg-secondary" style="position:absolute;bottom:4px;left:4px;font-size:10px;cursor:pointer;border:none;" onclick="setPrimary({{ $image->id }}, this)" title="Set as primary">Set Primary</button>
                                     @endif
                                 </div>
                             @endforeach
@@ -317,19 +317,21 @@ function removeExistingImage(btn, imageId) {
     document.getElementById('removeImagesInput').value = imagesToRemove.join(',');
 }
 
-function setPrimary(imageId) {
+function setPrimary(imageId, btnElement) {
     document.querySelectorAll('#existingImages .preview-item').forEach(el => {
-        el.querySelectorAll('.badge').forEach(b => {
+        const badges = el.querySelectorAll('.badge');
+        badges.forEach(b => {
             if (b.textContent === 'Primary' || b.textContent === 'Set Primary') {
                 b.textContent = 'Set Primary';
                 b.className = 'badge bg-secondary';
                 b.style.cssText = 'position:absolute;bottom:4px;left:4px;font-size:10px;cursor:pointer;border:none;';
-                b.onclick = function() { setPrimary(imageId); };
+                const pid = el.dataset.imageId;
+                b.onclick = function() { setPrimary(pid, this); };
             }
         });
     });
 
-    const btn = event.target;
+    const btn = btnElement;
     btn.textContent = 'Primary';
     btn.className = 'badge bg-warning text-dark';
     btn.style.cssText = 'position:absolute;bottom:4px;left:4px;font-size:10px;';

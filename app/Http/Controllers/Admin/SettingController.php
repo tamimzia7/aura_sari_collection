@@ -22,10 +22,28 @@ class SettingController extends Controller
             'settings.*' => ['nullable', 'string'],
         ]);
 
+        $groupMap = [
+            'site_name' => 'general',
+            'site_tagline' => 'general',
+            'site_description' => 'general',
+            'currency' => 'general',
+            'currency_symbol' => 'general',
+            'contact_email' => 'contact',
+            'contact_phone' => 'contact',
+            'contact_address' => 'contact',
+            'social_facebook' => 'social',
+            'social_instagram' => 'social',
+            'social_whatsapp' => 'social',
+            'social_youtube' => 'social',
+            'logo_path' => 'appearance',
+            'favicon_path' => 'appearance',
+            'footer_text' => 'appearance',
+        ];
+
         foreach ($request->settings as $key => $value) {
             Setting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $value, 'group' => 'general'],
+                ['value' => $value, 'group' => $groupMap[$key] ?? 'general'],
             );
         }
 
