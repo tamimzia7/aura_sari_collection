@@ -39,6 +39,13 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
+        $discountedProducts = Product::with(['category', 'images'])
+            ->active()
+            ->discounted()
+            ->latest()
+            ->take(8)
+            ->get();
+
         $categories = Category::where('status', true)
             ->orderBy('sort_order')
             ->get();
@@ -56,6 +63,7 @@ class HomeController extends Controller
             'newArrivals',
             'trendingProducts',
             'bestSelling',
+            'discountedProducts',
             'categories',
             'collections',
             'banners'

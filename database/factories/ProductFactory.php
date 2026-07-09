@@ -39,6 +39,8 @@ class ProductFactory extends Factory
             'is_featured' => fake()->boolean(20),
             'is_new_arrival' => fake()->boolean(40),
             'is_best_selling' => fake()->boolean(20),
+            'is_trending' => fake()->boolean(15),
+            'is_discounted' => fake()->boolean(15),
             'status' => true,
         ];
     }

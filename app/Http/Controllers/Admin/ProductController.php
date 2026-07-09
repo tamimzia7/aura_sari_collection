@@ -86,6 +86,7 @@ class ProductController extends Controller
         $data['is_new_arrival'] = $request->boolean('is_new_arrival');
         $data['is_best_selling'] = $request->boolean('is_best_selling');
         $data['is_trending'] = $request->boolean('is_trending');
+        $data['is_discounted'] = $request->boolean('is_discounted');
         $data['status'] = $request->boolean('status', true);
 
         if (empty($data['product_code'])) {
@@ -143,6 +144,7 @@ class ProductController extends Controller
         $data['is_new_arrival'] = $request->boolean('is_new_arrival');
         $data['is_best_selling'] = $request->boolean('is_best_selling');
         $data['is_trending'] = $request->boolean('is_trending');
+        $data['is_discounted'] = $request->boolean('is_discounted');
         $data['status'] = $request->boolean('status', true);
 
         $product->update($data);

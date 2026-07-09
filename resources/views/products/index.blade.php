@@ -778,7 +778,7 @@ body {
                 <i class="fas fa-sliders-h"></i>
                 <span class="fw-medium">Filters</span>
                     @if(request()->anyFilled(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling', 'trending', 'discounted', 'availability', 'search']))
-                        <span class="badge rounded-pill ms-1" style="background: var(--aura-gold); color: #0a0a1a;">{{ collect(request()->only(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling', 'trending', 'discounted', 'availability', 'search']))->filter(fn($v) => ! empty($v))->count() }}</span>
+                        <span class="badge rounded-pill ms-1" style="background: var(--aura-gold); color: #0a0a1a;">{{ collect(request()->only(['category', 'color', 'fabric', 'occasion', 'price_range', 'featured', 'new_arrival', 'best_selling', 'trending', 'discounted', 'availability', 'search']))->filter(fn($v, $k) => ! empty($v) && $v !== '0')->count() }}</span>
                     @endif
             </button>
         </div>

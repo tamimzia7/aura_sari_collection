@@ -761,50 +761,26 @@ footer {
     <p class="section-subtitle">Each piece selected at the intersection of heritage and the unseen.</p>
 
     <div class="featured-scroll" id="featuredScroll">
-      <div class="featured-card">
-        <div class="card-image">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M40 80 Q100 30 160 80 Q180 100 160 120 Q100 170 40 120 Q20 100 40 80Z" stroke="rgba(212,175,55,0.15)" stroke-width="1"/>
-            <path d="M60 90 Q100 55 140 90 Q155 105 140 115 Q100 150 60 115 Q45 105 60 90Z" stroke="rgba(74,158,255,0.1)" stroke-width="1"/>
-          </svg>
+      @forelse($featuredProducts as $product)
+        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
+        <div class="featured-card">
+          <div class="card-image">
+            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\' fill=\'none\'><path d=\'M40 80 Q100 30 160 80 Q180 100 160 120 Q100 170 40 120 Q20 100 40 80Z\' stroke=\'rgba(212,175,55,0.15)\' stroke-width=\'1\'/></svg>'">
+          </div>
+          <h3>{{ $product->name }}</h3>
+          <p class="card-desc">{{ $product->short_description ?: Str::limit($product->description, 80) }}</p>
+          <div class="card-price">₹{{ number_format($product->discounted_price, 0) }}</div>
         </div>
-        <h3>Celestial Silk</h3>
-        <p class="card-desc">Handwoven silk with an iridescent finish that shifts with every movement.</p>
-        <div class="card-price">12,500 BDT</div>
-      </div>
-      <div class="featured-card">
-        <div class="card-image">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M40 60 Q100 20 160 60 Q180 80 160 100 Q100 140 40 100 Q20 80 40 60Z" stroke="rgba(212,175,55,0.15)" stroke-width="1"/>
-            <path d="M60 70 Q100 40 140 70 Q155 85 140 95 Q100 125 60 95 Q45 85 60 70Z" stroke="rgba(74,158,255,0.1)" stroke-width="1"/>
-          </svg>
+      @empty
+        <div class="featured-card">
+          <div class="card-image">
+            <svg viewBox="0 0 200 200" fill="none"><path d="M40 80 Q100 30 200 80 Q200 100 200 120 Q100 170 40 120 Q20 100 40 80Z" stroke="rgba(212,175,55,0.15)" stroke-width="1"/></svg>
+          </div>
+          <h3>Coming Soon</h3>
+          <p class="card-desc">Featured products will appear here once added.</p>
+          <div class="card-price">—</div>
         </div>
-        <h3>Nocturnal Grace</h3>
-        <p class="card-desc">Deep midnight tones embroidered with golden constellations.</p>
-        <div class="card-price">18,000 BDT</div>
-      </div>
-      <div class="featured-card">
-        <div class="card-image">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M40 90 Q100 40 160 90 Q180 110 160 130 Q100 180 40 130 Q20 110 40 90Z" stroke="rgba(212,175,55,0.15)" stroke-width="1"/>
-            <path d="M60 100 Q100 60 140 100 Q155 115 140 125 Q100 160 60 125 Q45 115 60 100Z" stroke="rgba(74,158,255,0.1)" stroke-width="1"/>
-          </svg>
-        </div>
-        <h3>Vermillion Horizon</h3>
-        <p class="card-desc">Sunrise-kissed silk that bridges dawn and dusk in a single drape.</p>
-        <div class="card-price">15,800 BDT</div>
-      </div>
-      <div class="featured-card">
-        <div class="card-image">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M40 70 Q100 25 160 70 Q180 90 160 110 Q100 155 40 110 Q20 90 40 70Z" stroke="rgba(212,175,55,0.15)" stroke-width="1"/>
-            <path d="M60 80 Q100 45 140 80 Q155 95 140 105 Q100 140 60 105 Q45 95 60 80Z" stroke="rgba(74,158,255,0.1)" stroke-width="1"/>
-          </svg>
-        </div>
-        <h3>Ethereal Ivory</h3>
-        <p class="card-desc">Pure ivory silk with an almost lunar luminescence and pearl accents.</p>
-        <div class="card-price">20,000 BDT</div>
-      </div>
+      @endforelse
     </div>
   </div>
 </section>
@@ -831,79 +807,128 @@ footer {
     <h2 class="section-title">New Arrivals</h2>
     <p class="section-subtitle">Fresh from the celestial loom.</p>
 
+<div class="new-arrivals-grid">
+      @forelse($newArrivals as $product)
+        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
+        <div class="arrival-card">
+          <span class="new-badge">New</span>
+          <div class="arrival-img">
+            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
+          </div>
+          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
+          <h4>{{ $product->name }}</h4>
+          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
+        </div>
+      @empty
+        <div class="arrival-card">
+          <span class="new-badge">New</span>
+          <div class="arrival-img">
+            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
+          </div>
+          <div class="arrival-category">—</div>
+          <h4>Coming Soon</h4>
+          <div class="arrival-price">—</div>
+        </div>
+      @endforelse
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ BEST SELLING ═══════════ -->
+<section id="best-selling" class="section" style="background: linear-gradient(180deg, var(--aura-dark) 0%, var(--aura-deeper) 100%);">
+  <div style="max-width:1200px;margin:0 auto;">
+    <p class="section-label">Most Loved</p>
+    <h2 class="section-title">Best Selling</h2>
+    <p class="section-subtitle">Curated favourites chosen by our community.</p>
+
     <div class="new-arrivals-grid">
-      <div class="arrival-card">
-        <span class="new-badge">New</span>
-        <div class="arrival-img">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/>
-          </svg>
+      @forelse($bestSelling as $product)
+        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
+        <div class="arrival-card">
+          <div class="arrival-img">
+            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
+          </div>
+          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
+          <h4>{{ $product->name }}</h4>
+          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
         </div>
-        <div class="arrival-category">Silk</div>
-        <h4>Midnight Drift</h4>
-        <div class="arrival-rating">
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star-half-alt"></i>
+      @empty
+        <div class="arrival-card">
+          <div class="arrival-img">
+            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
+          </div>
+          <div class="arrival-category">—</div>
+          <h4>Coming Soon</h4>
+          <div class="arrival-price">—</div>
         </div>
-        <div class="arrival-price">11,200 BDT</div>
-      </div>
-      <div class="arrival-card">
-        <span class="new-badge">New</span>
-        <div class="arrival-img">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 75 Q100 30 150 75 Q170 95 150 115 Q100 160 50 115 Q30 95 50 75Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/>
-          </svg>
+      @endforelse
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TRENDING ═══════════ -->
+<section id="trending" class="section" style="background: var(--aura-dark);">
+  <div style="max-width:1200px;margin:0 auto;">
+    <p class="section-label">Trending Now</p>
+    <h2 class="section-title">Trending</h2>
+    <p class="section-subtitle">What everyone is talking about this season.</p>
+
+    <div class="new-arrivals-grid">
+      @forelse($trendingProducts as $product)
+        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
+        <div class="arrival-card">
+          <div class="arrival-img">
+            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
+          </div>
+          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
+          <h4>{{ $product->name }}</h4>
+          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
         </div>
-        <div class="arrival-category">Bridal</div>
-        <h4>Golden Mirage</h4>
-        <div class="arrival-rating">
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
+      @empty
+        <div class="arrival-card">
+          <div class="arrival-img">
+            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q200 105 150 125 Q100 170 50 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
+          </div>
+          <div class="arrival-category">—</div>
+          <h4>Coming Soon</h4>
+          <div class="arrival-price">—</div>
         </div>
-        <div class="arrival-price">24,500 BDT</div>
-      </div>
-      <div class="arrival-card">
-        <span class="new-badge">New</span>
-        <div class="arrival-img">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 95 Q100 50 150 95 Q170 115 150 135 Q100 180 50 135 Q30 115 50 95Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/>
-          </svg>
+      @endforelse
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DISCOUNTED ═══════════ -->
+<section id="discounted" class="section" style="background: radial-gradient(ellipse at 50% 30%, rgba(30,10,10,1), var(--aura-deeper) 60%);">
+  <div style="max-width:1200px;margin:0 auto;">
+    <p class="section-label">Special Offers</p>
+    <h2 class="section-title">Discounted</h2>
+    <p class="section-subtitle">Exclusive pieces at special prices, for a limited time.</p>
+
+    <div class="new-arrivals-grid">
+      @forelse($discountedProducts as $product)
+        @php $img = $product->image_url ?? 'https://placehold.co/300x400?text=No+Image'; @endphp
+        <div class="arrival-card">
+          <div class="arrival-img position-relative">
+            <img src="{{ asset($img) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 200 200\'><path d=\'M50 85 Q100 40 150 85 Q170 105 150 125 Q100 170 50 125 Q30 105 50 85Z\' stroke=\'rgba(212,175,55,0.12)\'/></svg>'">
+            @if($product->discount_percentage)
+              <span style="position:absolute;top:0.5rem;right:0.5rem;background:#dc2626;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.6rem;font-weight:600;">-{{ $product->discount_percentage }}%</span>
+            @endif
+          </div>
+          <div class="arrival-category">{{ $product->category?->name ?? 'General' }}</div>
+          <h4>{{ $product->name }}</h4>
+          <div class="arrival-price">₹{{ number_format($product->discounted_price, 0) }}</div>
         </div>
-        <div class="arrival-category">Cotton</div>
-        <h4>Azure Bloom</h4>
-        <div class="arrival-rating">
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="far fa-star"></i>
+      @empty
+        <div class="arrival-card">
+          <div class="arrival-img">
+            <svg viewBox="0 0 200 200"><path d="M50 85 Q100 40 150 85 Q170 105 200 125 Q200 170 100 125 Q30 105 50 85Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/></svg>
+          </div>
+          <div class="arrival-category">—</div>
+          <h4>Coming Soon</h4>
+          <div class="arrival-price">—</div>
         </div>
-        <div class="arrival-price">8,500 BDT</div>
-      </div>
-      <div class="arrival-card">
-        <span class="new-badge">New</span>
-        <div class="arrival-img">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 80 Q100 35 150 80 Q170 100 150 120 Q100 165 50 120 Q30 100 50 80Z" stroke="rgba(212,175,55,0.12)" stroke-width="1"/>
-          </svg>
-        </div>
-        <div class="arrival-category">Designer</div>
-        <h4>Rose Nebula</h4>
-        <div class="arrival-rating">
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star-half-alt"></i>
-        </div>
-        <div class="arrival-price">16,800 BDT</div>
-      </div>
+      @endforelse
     </div>
   </div>
 </section>

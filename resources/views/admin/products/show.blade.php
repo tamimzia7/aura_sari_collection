@@ -146,23 +146,26 @@
         </div>
 
         <div class="card">
-            <div class="card-header">Product Tags</div>
+            <div class="card-header">Special Choices</div>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-2">
                     @if($product->is_featured)
-                        <span class="badge bg-primary">Featured</span>
+                        <span class="badge bg-primary">Featured Product</span>
                     @endif
                     @if($product->is_new_arrival)
                         <span class="badge bg-success">New Arrival</span>
                     @endif
+                    @if($product->is_best_selling)
+                        <span class="badge bg-warning text-dark">Best Selling</span>
+                    @endif
                     @if($product->is_trending)
                         <span class="badge bg-info">Trending</span>
                     @endif
-                    @if($product->is_best_selling)
-                        <span class="badge bg-warning text-dark">Best Seller</span>
+                    @if($product->is_discounted)
+                        <span class="badge bg-danger">Discounted Product</span>
                     @endif
-                    @if(!$product->is_featured && !$product->is_new_arrival && !$product->is_trending && !$product->is_best_selling)
-                        <span class="text-muted small">No tags assigned</span>
+                    @if(!$product->is_featured && !$product->is_new_arrival && !$product->is_best_selling && !$product->is_trending && !$product->is_discounted)
+                        <span class="text-muted small">No special choices assigned</span>
                     @endif
                 </div>
             </div>

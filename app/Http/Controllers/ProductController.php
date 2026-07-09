@@ -79,7 +79,7 @@ class ProductController extends Controller
             ->when($request->boolean('new_arrival'), fn ($q) => $q->where('is_new_arrival', true))
             ->when($request->boolean('best_selling'), fn ($q) => $q->where('is_best_selling', true))
             ->when($request->boolean('trending'), fn ($q) => $q->where('is_trending', true))
-            ->when($request->boolean('discounted'), fn ($q) => $q->whereNotNull('discount_price'))
+            ->when($request->boolean('discounted'), fn ($q) => $q->where('is_discounted', true))
             ->when($request->has('availability'), function ($q) use ($request) {
                 $avail = array_filter((array) $request->input('availability', []));
                 if (in_array('in_stock', $avail) && ! in_array('out_of_stock', $avail)) {

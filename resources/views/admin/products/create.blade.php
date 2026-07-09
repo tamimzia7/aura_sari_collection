@@ -98,10 +98,19 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
+                            <label class="form-label">Colour</label>
+                            <select name="color" class="form-select">
+                                <option value="">Select Colour</option>
+                                @foreach(['Red','Blue','Black','White','Green','Yellow','Pink','Purple','Maroon','Golden'] as $color)
+                                    <option value="{{ $color }}" {{ old('color') === $color ? 'selected' : '' }}>{{ $color }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label">Fabric</label>
                             <select name="fabric" class="form-select">
                                 <option value="">Select Fabric</option>
-                                @foreach(['Silk','Cotton','Georgette','Chiffon','Organza','Linen','Velvet','Net','Satin','Jacquard'] as $fabric)
+                                @foreach(['Cotton','Silk','Linen','Muslin','Jamdani','Khadi','Georgette','Chiffon','Organza','Tissue'] as $fabric)
                                     <option value="{{ $fabric }}" {{ old('fabric') === $fabric ? 'selected' : '' }}>{{ $fabric }}</option>
                                 @endforeach
                             </select>
@@ -110,17 +119,8 @@
                             <label class="form-label">Occasion</label>
                             <select name="occasion" class="form-select">
                                 <option value="">Select Occasion</option>
-                                @foreach(['Wedding','Festival','Party','Casual','Office','Formal','Daily Wear','Evening'] as $occasion)
+                                @foreach(['Wedding','Party','Casual','Office','Festival','Traditional'] as $occasion)
                                     <option value="{{ $occasion }}" {{ old('occasion') === $occasion ? 'selected' : '' }}>{{ $occasion }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Color</label>
-                            <select name="color" class="form-select">
-                                <option value="">Select Color</option>
-                                @foreach(['Red','Blue','Green','Gold','White','Black','Pink','Purple','Orange','Yellow','Teal','Maroon','Navy','Emerald','Silver'] as $color)
-                                    <option value="{{ $color }}" {{ old('color') === $color ? 'selected' : '' }}>{{ $color }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -221,36 +221,40 @@
             </div>
 
             <div class="card">
-                <div class="card-header">Product Status</div>
+                <div class="card-header">Special Choices</div>
                 <div class="card-body">
                     <div class="d-flex flex-column gap-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label class="form-label mb-0">Active</label>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="status" role="switch" value="1" {{ old('status', '1') ? 'checked' : '' }}>
-                            </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="create_is_featured" {{ old('is_featured') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="create_is_featured">Featured Product</label>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label class="form-label mb-0">Featured</label>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="is_featured" role="switch" value="1" {{ old('is_featured') ? 'checked' : '' }}>
-                            </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_new_arrival" value="1" id="create_is_new" {{ old('is_new_arrival') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="create_is_new">New Arrival</label>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label class="form-label mb-0">New Arrival</label>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="is_new_arrival" role="switch" value="1" {{ old('is_new_arrival') ? 'checked' : '' }}>
-                            </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_best_selling" value="1" id="create_is_best" {{ old('is_best_selling') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="create_is_best">Best Selling</label>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label class="form-label mb-0">Best Selling</label>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="is_best_selling" role="switch" value="1" {{ old('is_best_selling') ? 'checked' : '' }}>
-                            </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_trending" value="1" id="create_is_trending" {{ old('is_trending') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="create_is_trending">Trending</label>
                         </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="is_trending" role="switch" value="1" {{ old('is_trending') ? 'checked' : '' }}>
-                            <label class="form-check-label">Trending Product</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_discounted" value="1" id="create_is_discounted" {{ old('is_discounted') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="create_is_discounted">Discounted Product</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Product Status</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label mb-0">Active</label>
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" name="status" role="switch" value="1" {{ old('status', '1') ? 'checked' : '' }}>
                         </div>
                     </div>
                 </div>

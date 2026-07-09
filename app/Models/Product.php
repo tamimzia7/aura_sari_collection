@@ -38,6 +38,7 @@ class Product extends Model
         'is_new_arrival',
         'is_best_selling',
         'is_trending',
+        'is_discounted',
         'status',
         'meta_title',
         'meta_description',
@@ -50,6 +51,7 @@ class Product extends Model
             'is_new_arrival' => 'boolean',
             'is_best_selling' => 'boolean',
             'is_trending' => 'boolean',
+            'is_discounted' => 'boolean',
             'status' => 'boolean',
             'sizes' => 'array',
         ];
@@ -108,6 +110,11 @@ class Product extends Model
     public function scopeTrending($query)
     {
         return $query->where('is_trending', true);
+    }
+
+    public function scopeDiscounted($query)
+    {
+        return $query->where('is_discounted', true);
     }
 
     public function scopeBestSelling($query)
