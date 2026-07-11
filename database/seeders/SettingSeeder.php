@@ -24,6 +24,9 @@ class SettingSeeder extends Seeder
             ['key' => 'footer_text', 'value' => '© 2026 AURA. All rights reserved.', 'group' => 'appearance'],
             ['key' => 'theme_primary', 'value' => '#0a0a1a', 'group' => 'appearance'],
             ['key' => 'theme_accent', 'value' => '#d4af37', 'group' => 'appearance'],
+            ['key' => 'payment_bkash_number', 'value' => '01XXXXXXXXX', 'group' => 'payment'],
+            ['key' => 'payment_nagad_number', 'value' => '01XXXXXXXXX', 'group' => 'payment'],
+            ['key' => 'payment_rocket_number', 'value' => '01XXXXXXXXX', 'group' => 'payment'],
         ];
 
         foreach ($settings as $setting) {

@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    $setting = fn($key, $default = '') => $settings[$key] ?? $default;
+@endphp
+
 @section('title', 'Checkout')
 
 @push('styles')
@@ -485,14 +489,36 @@
                             </div>
                             <div class="payment-desc">Instant</div>
                         </div>
-                        <div class="payment-method" onclick="selectPayment(this, 'card')">
-                            <input type="radio" name="payment_method" value="card" class="payment-radio">
-                            <div class="payment-icon" style="color:#1a1f71;"><i class="fas fa-credit-card"></i></div>
+                        <div class="payment-method" onclick="selectPayment(this, 'rocket')">
+                            <input type="radio" name="payment_method" value="rocket" class="payment-radio">
+                            <div class="payment-icon" style="color:#e2136e;"><i class="fas fa-rocket"></i></div>
                             <div>
-                                <div class="payment-label">Credit / Debit Card</div>
-                                <div class="small text-muted">Visa, Mastercard, Amex</div>
+                                <div class="payment-label">Rocket</div>
+                                <div class="small text-muted">Send money to Rocket number</div>
                             </div>
-                            <div class="payment-desc">Secure</div>
+                            <div class="payment-desc">Instant</div>
+                        </div>
+
+                        {{-- Advance Payment Fields --}}
+                        <div id="advancePaymentFields" class="d-none mt-3 p-3 rounded" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                            <div class="mb-3">
+                                <label class="form-label">Send Payment To:</label>
+                                <div id="paymentNumberDisplay" class="fw-semibold text-muted"></div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Transaction ID <span class="text-danger">*</span></label>
+                                    <input type="text" name="transaction_id" class="form-control" placeholder="Enter transaction ID" id="transactionId">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Sender Number</label>
+                                    <input type="text" name="sender_number" class="form-control" placeholder="Your mobile number">
+                                </div>
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Your order will be placed after payment verification.
+                            </div>
                         </div>
                     </div>
 
@@ -627,10 +653,29 @@
         document.getElementById('billingFields').style.display = checkbox.checked ? 'none' : 'block';
     }
 
+    const paymentNumbers = {
+        bkash: '{{ $setting("payment_bkash_number", "01XXXXXXXXX") }}',
+        nagad: '{{ $setting("payment_nagad_number", "01XXXXXXXXX") }}',
+        rocket: '{{ $setting("payment_rocket_number", "01XXXXXXXXX") }}',
+    };
+
     function selectPayment(el, value) {
         document.querySelectorAll('.payment-method').forEach(p => p.classList.remove('active'));
         el.classList.add('active');
         el.querySelector('.payment-radio').checked = true;
+
+        const advanceFields = document.getElementById('advancePaymentFields');
+        const txField = document.getElementById('transactionId');
+
+        if (value === 'cod') {
+            advanceFields.classList.add('d-none');
+            txField.removeAttribute('required');
+        } else {
+            advanceFields.classList.remove('d-none');
+            txField.setAttribute('required', 'required');
+            const display = document.getElementById('paymentNumberDisplay');
+            display.textContent = paymentNumbers[value] || '01XXXXXXXXX';
+        }
     }
 
     document.getElementById('checkoutForm').addEventListener('submit', function (e) {

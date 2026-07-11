@@ -38,6 +38,9 @@ class SettingController extends Controller
             'logo_path' => 'appearance',
             'favicon_path' => 'appearance',
             'footer_text' => 'appearance',
+            'payment_bkash_number' => 'payment',
+            'payment_nagad_number' => 'payment',
+            'payment_rocket_number' => 'payment',
         ];
 
         foreach ($request->settings as $key => $value) {

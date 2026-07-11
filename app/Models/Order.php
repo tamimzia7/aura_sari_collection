@@ -14,12 +14,38 @@ class Order extends Model
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
+    const STATUS_PENDING = 'pending';
+
+    const STATUS_CONFIRMED = 'confirmed';
+
+    const STATUS_PROCESSING = 'processing';
+
+    const STATUS_SHIPPED = 'shipped';
+
+    const STATUS_DELIVERED = 'delivered';
+
+    const STATUS_CANCELLED = 'cancelled';
+
+    const PAYMENT_PENDING = 'pending';
+
+    const PAYMENT_PENDING_VERIFICATION = 'pending_verification';
+
+    const PAYMENT_CASH_ON_DELIVERY = 'cash_on_delivery';
+
+    const PAYMENT_PAID = 'paid';
+
+    const PAYMENT_FAILED = 'failed';
+
+    const PAYMENT_REFUNDED = 'refunded';
+
     protected $fillable = [
         'user_id',
         'order_number',
         'status',
         'payment_method',
         'payment_status',
+        'transaction_id',
+        'sender_number',
         'shipping_address_id',
         'billing_address_id',
         'subtotal',

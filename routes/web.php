@@ -135,6 +135,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::post('/orders/{id}/verify-payment', [AdminOrderController::class, 'verifyPayment'])->name('orders.verify-payment');
+    Route::post('/orders/{id}/mark-paid', [AdminOrderController::class, 'markPaid'])->name('orders.mark-paid');
+    Route::post('/orders/{id}/confirm', [AdminOrderController::class, 'confirmOrder'])->name('orders.confirm');
+    Route::post('/orders/{id}/reject', [AdminOrderController::class, 'rejectOrder'])->name('orders.reject');
+    Route::post('/orders/{id}/cancel', [AdminOrderController::class, 'cancelOrder'])->name('orders.cancel');
+    Route::get('/orders/{id}/invoice', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
+    Route::get('/orders/{id}/print', [AdminOrderController::class, 'printInvoice'])->name('orders.print');
 
     // Customers
     Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');

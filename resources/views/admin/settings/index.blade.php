@@ -18,6 +18,11 @@ $groups = [
         ['key' => 'contact_phone', 'label' => 'Contact Phone', 'type' => 'text'],
         ['key' => 'contact_address', 'label' => 'Contact Address', 'type' => 'textarea', 'rows' => 2],
     ]],
+    'payment' => ['label' => 'Payment Settings', 'icon' => 'fa-credit-card', 'fields' => [
+        ['key' => 'payment_bkash_number', 'label' => 'bKash Number', 'type' => 'text', 'icon' => 'fas fa-mobile-alt', 'icon_color' => '#e2136e'],
+        ['key' => 'payment_nagad_number', 'label' => 'Nagad Number', 'type' => 'text', 'icon' => 'fas fa-mobile-alt', 'icon_color' => '#e84e1b'],
+        ['key' => 'payment_rocket_number', 'label' => 'Rocket Number', 'type' => 'text', 'icon' => 'fas fa-mobile-alt', 'icon_color' => '#e2136e'],
+    ]],
     'social' => ['label' => 'Social Links', 'icon' => 'fa-share-alt', 'fields' => [
         ['key' => 'social_facebook', 'label' => 'Facebook', 'type' => 'url', 'icon' => 'fab fa-facebook', 'icon_color' => '#1877F2'],
         ['key' => 'social_instagram', 'label' => 'Instagram', 'type' => 'url', 'icon' => 'fab fa-instagram', 'icon_color' => '#E4405F'],

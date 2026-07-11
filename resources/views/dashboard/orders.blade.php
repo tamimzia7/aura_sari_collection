@@ -81,7 +81,8 @@
                                             <th>Date</th>
                                             <th>Items</th>
                                             <th>Total</th>
-                                            <th>Status</th>
+                                            <th>Payment</th>
+                                            <th>Order Status</th>
                                             <th class="text-end pe-4">Action</th>
                                         </tr>
                                     </thead>
@@ -91,11 +92,30 @@
                                                 <td class="ps-4 fw-medium">#{{ $order->order_number }}</td>
                                                 <td class="text-muted small">{{ $order->created_at->format('d M, Y') }}</td>
                                                 <td class="small">{{ $order->items_count ?? $order->items->count() }}</td>
-                                                <td class="fw-medium">₹{{ number_format($order->grand_total, 2) }}</td>
+                                                <td class="fw-medium">₹{{ number_format($order->grand_total, 0) }}</td>
+                                                <td>
+                                                    @php
+                                                        $methodLabels = ['cod' => 'COD', 'bkash' => 'bKash', 'nagad' => 'Nagad', 'rocket' => 'Rocket'];
+                                                    @endphp
+                                                    <span class="badge bg-light text-dark">{{ $methodLabels[$order->payment_method] ?? $order->payment_method }}</span>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        @if($order->payment_status === 'paid')
+                                                            <span class="text-success">Paid</span>
+                                                        @elseif($order->payment_status === 'cash_on_delivery')
+                                                            COD
+                                                        @elseif($order->payment_status === 'pending_verification')
+                                                            <span class="text-warning">Pending Verif.</span>
+                                                        @else
+                                                            {{ ucfirst($order->payment_status) }}
+                                                        @endif
+                                                    </small>
+                                                </td>
                                                 <td>
                                                     @php
                                                         $statusClasses = [
                                                             'pending' => 'warning',
+                                                            'confirmed' => 'info',
                                                             'processing' => 'info',
                                                             'shipped' => 'primary',
                                                             'delivered' => 'success',
@@ -103,6 +123,7 @@
                                                         ];
                                                         $statusIcons = [
                                                             'pending' => 'fa-clock',
+                                                            'confirmed' => 'fa-check',
                                                             'processing' => 'fa-spinner',
                                                             'shipped' => 'fa-truck',
                                                             'delivered' => 'fa-check-circle',

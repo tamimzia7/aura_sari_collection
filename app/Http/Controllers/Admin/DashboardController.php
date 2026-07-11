@@ -22,6 +22,7 @@ class DashboardController extends Controller
         $totalCustomers = User::where('role', 'customer')->count();
 
         $pendingOrders = Order::where('status', 'pending')->count();
+        $confirmedOrders = Order::where('status', 'confirmed')->count();
         $processingOrders = Order::where('status', 'processing')->count();
         $completedOrders = Order::whereIn('status', ['completed', 'delivered'])->count();
         $cancelledOrders = Order::where('status', 'cancelled')->count();
@@ -31,6 +32,10 @@ class DashboardController extends Controller
         $lowStockCount = Product::where('stock_quantity', '>', 0)
             ->where('stock_quantity', '<=', 5)
             ->count();
+
+        $newOrdersCount = Order::where('status', 'pending')->where('created_at', '>=', today()->subDays(1))->count();
+        $pendingPaymentsCount = Order::where('payment_status', 'pending_verification')->count();
+        $pendingCodCount = Order::where('payment_status', 'cash_on_delivery')->where('status', '!=', 'delivered')->count();
 
         $totalRevenue = Order::whereIn('status', ['delivered', 'completed'])->sum('grand_total');
         $monthlyRevenue = Order::whereIn('status', ['delivered', 'completed'])
@@ -96,6 +101,7 @@ class DashboardController extends Controller
             'totalOrders',
             'totalCustomers',
             'pendingOrders',
+            'confirmedOrders',
             'processingOrders',
             'completedOrders',
             'cancelledOrders',
@@ -114,6 +120,9 @@ class DashboardController extends Controller
             'lowStockProducts',
             'newCustomersToday',
             'pendingReviewsCount',
+            'newOrdersCount',
+            'pendingPaymentsCount',
+            'pendingCodCount',
         ));
     }
 }

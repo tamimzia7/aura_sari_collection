@@ -1093,9 +1093,13 @@
                 <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Orders</span>
-                    @php $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count(); @endphp
-                    @if($pendingOrdersCount > 0)
-                        <span class="badge bg-warning text-dark ms-auto">{{ $pendingOrdersCount }}</span>
+                    @php
+                        $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count();
+                        $pendingVerifCount = \App\Models\Order::where('payment_status', 'pending_verification')->count();
+                        $totalBadge = $pendingOrdersCount + $pendingVerifCount;
+                    @endphp
+                    @if($totalBadge > 0)
+                        <span class="badge bg-warning text-dark ms-auto">{{ $totalBadge }}</span>
                     @endif
                 </a>
             </div>

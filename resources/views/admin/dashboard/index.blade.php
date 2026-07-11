@@ -20,36 +20,62 @@
     </div>
 </div>
 
-@if($lowStockCount > 0 || $pendingOrders > 0 || $newCustomersToday > 0)
+@if($lowStockCount > 0 || $pendingOrders > 0 || $newCustomersToday > 0 || $pendingPaymentsCount > 0 || $pendingCodCount > 0 || $newOrdersCount > 0)
 <div class="row g-3 mb-4">
-    @if($lowStockCount > 0)
-    <div class="col-xl-4">
-        <div class="alert alert-warning d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
-            <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;">
-                <i class="fas fa-exclamation-triangle" style="color:#d97706;"></i>
+    @if($newOrdersCount > 0)
+    <div class="col-xl-3">
+        <div class="alert alert-info d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
+            <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-shopping-cart" style="color:#2563eb;"></i>
             </div>
             <div>
-                <strong>Low Stock Warning!</strong> {{ $lowStockCount }} product(s) are running low on stock.
+                <strong>{{ $newOrdersCount }} New Order(s)</strong> in the last 24 hours.
+                <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="alert-link">View Orders</a>
+            </div>
+        </div>
+    </div>
+    @endif
+    @if($pendingPaymentsCount > 0)
+    <div class="col-xl-3">
+        <div class="alert alert-warning d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
+            <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-clock" style="color:#d97706;"></i>
+            </div>
+            <div>
+                <strong>{{ $pendingPaymentsCount }} Pending Payment(s)</strong> awaiting verification.
+                <a href="{{ route('admin.orders.index', ['payment_status' => 'pending_verification']) }}" class="alert-link">View</a>
+            </div>
+        </div>
+    </div>
+    @endif
+    @if($pendingCodCount > 0)
+    <div class="col-xl-3">
+        <div class="alert alert-primary d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
+            <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(13,110,253,0.15);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-money-bill-wave" style="color:#0d6efd;"></i>
+            </div>
+            <div>
+                <strong>{{ $pendingCodCount }} Pending COD</strong> orders to process.
+                <a href="{{ route('admin.orders.index', ['payment_status' => 'cash_on_delivery']) }}" class="alert-link">View</a>
+            </div>
+        </div>
+    </div>
+    @endif
+    @if($lowStockCount > 0)
+    <div class="col-xl-3">
+        <div class="alert alert-danger d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
+            <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>
+            </div>
+            <div>
+                <strong>Low Stock!</strong> {{ $lowStockCount }} product(s) running low.
                 <a href="{{ route('admin.products.index') }}" class="alert-link">View Products</a>
             </div>
         </div>
     </div>
     @endif
-    @if($pendingOrders > 0)
-    <div class="col-xl-4">
-        <div class="alert alert-info d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
-            <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
-                <i class="fas fa-clock" style="color:#2563eb;"></i>
-            </div>
-            <div>
-                <strong>{{ $pendingOrders }} Pending Order(s)</strong> require your attention.
-                <a href="{{ route('admin.orders.index') }}" class="alert-link">View Orders</a>
-            </div>
-        </div>
-    </div>
-    @endif
     @if($newCustomersToday > 0)
-    <div class="col-xl-4">
+    <div class="col-xl-3">
         <div class="alert alert-success d-flex align-items-center gap-3 mb-0 border-0 shadow-sm" role="alert" style="border-radius:12px;">
             <div class="flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;">
                 <i class="fas fa-user-plus" style="color:#059669;"></i>
@@ -116,7 +142,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-4">
         <div class="stat-card">
             <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
             <div class="stat-info">
@@ -126,31 +152,41 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-check"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Confirmed</div>
+                <div class="stat-value">{{ number_format($confirmedOrders) }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4">
         <div class="stat-card">
             <div class="stat-icon blue"><i class="fas fa-spinner"></i></div>
             <div class="stat-info">
-                <div class="stat-label">Processing Orders</div>
+                <div class="stat-label">Processing</div>
                 <div class="stat-value">{{ number_format($processingOrders) }}</div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-4">
         <div class="stat-card">
             <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
             <div class="stat-info">
-                <div class="stat-label">Completed Orders</div>
+                <div class="stat-label">Delivered</div>
                 <div class="stat-value">{{ number_format($completedOrders) }}</div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-4">
         <div class="stat-card">
             <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
             <div class="stat-info">
-                <div class="stat-label">Cancelled Orders</div>
+                <div class="stat-label">Cancelled</div>
                 <div class="stat-value">{{ number_format($cancelledOrders) }}</div>
             </div>
         </div>

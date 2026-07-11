@@ -108,6 +108,7 @@
                     @php
                         $statusClasses = [
                             'pending' => 'warning',
+                            'confirmed' => 'info',
                             'processing' => 'info',
                             'shipped' => 'primary',
                             'delivered' => 'success',
@@ -124,7 +125,7 @@
                     </div>
                     <div class="card-body px-4 pb-4 pt-0">
                         @php
-                            $steps = ['pending', 'processing', 'shipped', 'delivered'];
+                            $steps = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
                             $currentIndex = array_search($order->status, $steps);
                             if ($order->status === 'cancelled') $currentIndex = -1;
                         @endphp
@@ -135,6 +136,7 @@
                                     $label = ucfirst($step);
                                     switch($step) {
                                         case 'pending': $icon = 'fa-receipt'; break;
+                                        case 'confirmed': $icon = 'fa-check'; break;
                                         case 'processing': $icon = 'fa-spinner'; break;
                                         case 'shipped': $icon = 'fa-truck'; break;
                                         case 'delivered': $icon = 'fa-check'; break;
@@ -175,15 +177,13 @@
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm rounded-3 h-100">
                             <div class="card-body p-4">
-                                <h6 class="fw-bold mb-3"><i class="fas fa-map-marker-alt me-2"></i>Shipping Address</h6>
+                                <h6 class="fw-bold mb-3"><i class="fas fa-user me-2"></i>Customer Information</h6>
                                 <div class="small">
-                                    <p class="fw-medium mb-1">{{ $order->shipping_name }}</p>
-                                    <p class="text-muted mb-1">{{ $order->shipping_address_line_1 }}</p>
-                                    @if($order->shipping_address_line_2)
-                                        <p class="text-muted mb-1">{{ $order->shipping_address_line_2 }}</p>
+                                    <p class="fw-medium mb-1">{{ $order->user->name }}</p>
+                                    <p class="text-muted mb-1">{{ $order->user->email }}</p>
+                                    @if($order->user->phone)
+                                        <p class="text-muted mb-0">Phone: {{ $order->user->phone }}</p>
                                     @endif
-                                    <p class="text-muted mb-1">{{ $order->shipping_city }}, {{ $order->shipping_state }} - {{ $order->shipping_pincode }}</p>
-                                    <p class="text-muted mb-0">Phone: {{ $order->shipping_phone }}</p>
                                 </div>
                             </div>
                         </div>
@@ -191,15 +191,17 @@
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm rounded-3 h-100">
                             <div class="card-body p-4">
-                                <h6 class="fw-bold mb-3"><i class="fas fa-file-invoice me-2"></i>Billing Address</h6>
+                                <h6 class="fw-bold mb-3"><i class="fas fa-map-marker-alt me-2"></i>Shipping Address</h6>
                                 <div class="small">
-                                    <p class="fw-medium mb-1">{{ $order->billing_name ?? $order->shipping_name }}</p>
-                                    <p class="text-muted mb-1">{{ $order->billing_address_line_1 ?? $order->shipping_address_line_1 }}</p>
-                                    @if($order->billing_address_line_2 ?? $order->shipping_address_line_2)
-                                        <p class="text-muted mb-1">{{ $order->billing_address_line_2 ?? $order->shipping_address_line_2 }}</p>
+                                    @if($order->shippingAddress)
+                                        <p class="fw-medium mb-1">{{ $order->shippingAddress->name }}</p>
+                                        <p class="text-muted mb-1">{{ $order->shippingAddress->address_line1 }}</p>
+                                        @if($order->shippingAddress->address_line2)
+                                            <p class="text-muted mb-1">{{ $order->shippingAddress->address_line2 }}</p>
+                                        @endif
+                                        <p class="text-muted mb-1">{{ $order->shippingAddress->city }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->zip_code }}</p>
+                                        <p class="text-muted mb-0">Phone: {{ $order->shippingAddress->phone }}</p>
                                     @endif
-                                    <p class="text-muted mb-1">{{ $order->billing_city ?? $order->shipping_city }}, {{ $order->billing_state ?? $order->shipping_state }} - {{ $order->billing_pincode ?? $order->shipping_pincode }}</p>
-                                    <p class="text-muted mb-0">Phone: {{ $order->billing_phone ?? $order->shipping_phone }}</p>
                                 </div>
                             </div>
                         </div>
@@ -216,6 +218,7 @@
                                 <thead class="table-light small">
                                     <tr>
                                         <th class="ps-4">Product</th>
+                                        <th>Image</th>
                                         <th>Price</th>
                                         <th>Qty</th>
                                         <th class="text-end pe-4">Total</th>
@@ -226,24 +229,21 @@
                                         <tr>
                                             <td class="ps-4">
                                                 <div class="d-flex align-items-center gap-3">
-                                                    @if($item->product && $item->product->primaryImage)
-                                                        <img src="{{ $item->product->primaryImage->url }}" alt="{{ $item->product_name }}" class="rounded" style="width: 56px; height: 72px; object-fit: cover;">
-                                                    @else
-                                                        <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width: 56px; height: 72px;">
-                                                            <i class="fas fa-image text-muted"></i>
-                                                        </div>
-                                                    @endif
-                                                    <div class="small">
-                                                        <span class="fw-medium">{{ $item->product_name }}</span>
-                                                        @if($item->variant)
-                                                            <p class="text-muted mb-0">{{ $item->variant }}</p>
-                                                        @endif
-                                                    </div>
+                                                    <span class="fw-medium">{{ $item->product_name }}</span>
                                                 </div>
                                             </td>
-                                            <td class="small">₹{{ number_format($item->price, 2) }}</td>
+                                            <td>
+                                                @if($item->product_image)
+                                                    <img src="{{ asset($item->product_image) }}" alt="{{ $item->product_name }}" class="rounded" style="width: 56px; height: 72px; object-fit: cover;" onerror="this.style.display='none'">
+                                                @else
+                                                    <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width: 56px; height: 72px;">
+                                                        <i class="fas fa-image text-muted"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td class="small">₹{{ number_format($item->price, 0) }}</td>
                                             <td class="small">{{ $item->quantity }}</td>
-                                            <td class="text-end pe-4 fw-medium">₹{{ number_format($item->price * $item->quantity, 2) }}</td>
+                                            <td class="text-end pe-4 fw-medium">₹{{ number_format($item->total, 0) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -252,39 +252,86 @@
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm rounded-3">
-                    <div class="card-body p-4">
-                        <div class="row justify-content-end">
-                            <div class="col-md-5">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3"><i class="fas fa-credit-card me-2"></i>Payment Information</h6>
+                                <div class="small">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Method:</span>
+                                        <span class="fw-medium">
+                                            @php
+                                                $methodLabels = ['cod' => 'Cash on Delivery', 'bkash' => 'bKash', 'nagad' => 'Nagad', 'rocket' => 'Rocket'];
+                                            @endphp
+                                            {{ $methodLabels[$order->payment_method] ?? ucfirst($order->payment_method) }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Status:</span>
+                                        @php $ps = $order->payment_status; @endphp
+                                        @if($ps === 'paid')
+                                            <span class="badge bg-success">Paid</span>
+                                        @elseif($ps === 'cash_on_delivery')
+                                            <span class="badge bg-info text-dark">Cash on Delivery</span>
+                                        @elseif($ps === 'pending_verification')
+                                            <span class="badge bg-warning text-dark">Pending Verification</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $ps }}</span>
+                                        @endif
+                                    </div>
+                                    @if($order->transaction_id)
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Transaction ID:</span>
+                                        <span class="fw-medium">{{ $order->transaction_id }}</span>
+                                    </div>
+                                    @endif
+                                    @if($order->sender_number)
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Sender Number:</span>
+                                        <span>{{ $order->sender_number }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3"><i class="fas fa-receipt me-2"></i>Order Summary</h6>
                                 <div class="d-flex justify-content-between mb-2 small">
                                     <span class="text-muted">Subtotal</span>
-                                    <span>₹{{ number_format($order->subtotal, 2) }}</span>
+                                    <span>₹{{ number_format($order->subtotal, 0) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2 small">
-                                    <span class="text-muted">Shipping</span>
-                                    <span>{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 2) : 'Free' }}</span>
+                                    <span class="text-muted">Delivery Charge</span>
+                                    <span>{{ $order->shipping_cost > 0 ? '₹'.number_format($order->shipping_cost, 0) : 'Free' }}</span>
                                 </div>
                                 @if($order->discount > 0)
                                     <div class="d-flex justify-content-between mb-2 small">
                                         <span class="text-muted">Discount</span>
-                                        <span class="text-success">-₹{{ number_format($order->discount, 2) }}</span>
-                                    </div>
-                                @endif
-                                @if($order->tax > 0)
-                                    <div class="d-flex justify-content-between mb-2 small">
-                                        <span class="text-muted">Tax</span>
-                                        <span>₹{{ number_format($order->tax, 2) }}</span>
+                                        <span class="text-success">-₹{{ number_format($order->discount, 0) }}</span>
                                     </div>
                                 @endif
                                 <hr>
                                 <div class="d-flex justify-content-between fw-bold">
                                     <span>Total</span>
-                                    <span class="fs-5">₹{{ number_format($order->total, 2) }}</span>
+                                    <span class="fs-5">₹{{ number_format($order->grand_total, 0) }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                @if(in_array($order->status, ['pending', 'confirmed', 'processing']))
+                    <div class="text-center mt-4">
+                        <form action="{{ route('orders.cancel', $order->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger"><i class="fas fa-ban me-1"></i> Cancel Order</button>
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
