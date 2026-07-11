@@ -81,6 +81,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
+    // Direct Buy-Now Checkout
+    Route::get('/buy-now/{id}', [CheckoutController::class, 'directCheckout'])->name('checkout.direct');
+    Route::post('/buy-now', [CheckoutController::class, 'directStore'])->name('checkout.direct.store');
+
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');

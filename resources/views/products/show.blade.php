@@ -448,6 +448,10 @@
                                         onclick="addToCart(this)">
                                     <i class="fas fa-shopping-bag me-2"></i> Add to Cart
                                 </button>
+                                <a href="{{ route('checkout.direct', $product->id) }}"
+                                   class="btn btn-success btn-lg flex-grow-1 rounded-pill">
+                                    <i class="fas fa-check-circle me-2"></i> Confirm Order
+                                </a>
                             @else
                                 <button class="btn btn-secondary btn-lg flex-grow-1 rounded-pill" disabled>
                                     <i class="fas fa-bell me-2"></i> Notify Me
