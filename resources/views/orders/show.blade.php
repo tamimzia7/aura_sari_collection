@@ -2,6 +2,48 @@
 
 @section('title', 'Order #' . $order->order_number)
 
+@push('styles')
+<style>
+.status-timeline {
+    position: relative;
+    padding: 10px 0;
+}
+.status-timeline .tl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 24px;
+    position: relative;
+}
+.status-timeline .tl-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 32px;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+}
+.status-timeline .tl-item:last-child { padding-bottom: 0; }
+.status-timeline .tl-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #fff;
+    flex-shrink: 0;
+    z-index: 1;
+}
+.status-timeline .tl-icon.completed { background: #198754; }
+.status-timeline .tl-icon.current { background: #0d6efd; box-shadow: 0 0 0 4px rgba(13,110,253,0.15); }
+.status-timeline .tl-icon.pending-state { background: #adb5bd; }
+.status-timeline .tl-icon.cancelled { background: #dc3545; }
+</style>
+@endpush
+
 @section('content')
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -21,6 +63,49 @@
 
     <div class="row g-4">
         <div class="col-lg-8">
+            {{-- Order Timeline --}}
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white fw-semibold"><i class="fas fa-clock me-2"></i>Order Status</div>
+                <div class="card-body">
+                    <div class="status-timeline">
+                        @php
+                            $steps = ['pending' => ['label' => 'Order Placed', 'icon' => 'fa-receipt'],
+                                       'confirmed' => ['label' => 'Confirmed', 'icon' => 'fa-check'],
+                                       'processing' => ['label' => 'Processing', 'icon' => 'fa-spinner'],
+                                       'shipped' => ['label' => 'Shipped', 'icon' => 'fa-truck'],
+                                       'delivered' => ['label' => 'Delivered', 'icon' => 'fa-check-circle']];
+                            $currentIdx = array_search($order->status, array_keys($steps));
+                            if ($order->status === 'cancelled') $currentIdx = -1;
+                        @endphp
+                        @foreach($steps as $key => $step)
+                            @php
+                                $idx = array_search($key, array_keys($steps));
+                                if ($order->status === 'cancelled') {
+                                    $cls = $idx <= $currentIdx ? 'completed' : 'pending-state';
+                                } else {
+                                    $cls = $idx < $currentIdx ? 'completed' : ($idx === $currentIdx ? 'current' : 'pending-state');
+                                }
+                            @endphp
+                            <div class="tl-item">
+                                <div class="tl-icon {{ $cls }}"><i class="fas {{ $step['icon'] }}"></i></div>
+                                <div>
+                                    <div class="fw-medium small">{{ $step['label'] }}</div>
+                                    @if($idx === $currentIdx && $order->status !== 'cancelled')
+                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small">Current</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                        @if($order->status === 'cancelled')
+                            <div class="tl-item">
+                                <div class="tl-icon cancelled"><i class="fas fa-times"></i></div>
+                                <div><div class="fw-medium small text-danger">Cancelled</div></div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             <div class="card border-0 shadow-sm rounded-3 mb-4">
                 <div class="card-header bg-white fw-semibold">Order Items</div>
                 <div class="card-body p-0">

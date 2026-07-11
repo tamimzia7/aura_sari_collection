@@ -1139,6 +1139,16 @@
             <div class="nav-label">System</div>
 
             <div class="nav-item">
+                <a href="{{ route('admin.notifications.index') }}" class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    @if(\App\Models\Notification::where('type', 'admin')->where('is_read', false)->count() > 0)
+                        <span class="badge bg-danger ms-auto">{{ \App\Models\Notification::where('type', 'admin')->where('is_read', false)->count() }}</span>
+                    @endif
+                </a>
+            </div>
+
+            <div class="nav-item">
                 <a href="{{ route('admin.reports') }}" class="nav-link {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar"></i>
                     <span>Reports</span>
@@ -1190,10 +1200,33 @@
                     <i class="fas fa-globe"></i>
                     <span class="d-none d-md-inline">Back to Website</span>
                 </a>
-                <button class="btn-icon" title="Notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="dot"></span>
-                </button>
+                <div class="dropdown">
+                    <button class="btn-icon" title="Notifications" data-bs-toggle="dropdown" aria-expanded="false" id="adminNotifBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="dot" id="adminNotifDot" style="display:none;"></span>
+                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" id="adminNotifBadge" style="font-size:9px;min-width:16px;height:16px;display:none;">0</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end" style="width:360px;padding:0;border-radius:12px;border:1px solid #e9ecef;box-shadow:0 10px 40px rgba(0,0,0,0.1);" id="adminNotifDropdown">
+                        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-bottom">
+                            <h6 class="fw-bold mb-0" style="font-size:14px;">Notifications</h6>
+                            <span class="small text-muted" id="adminNotifCount">0 new</span>
+                        </div>
+                        <div style="max-height:320px;overflow-y:auto;" id="adminNotifList">
+                            <div class="text-center py-4 text-muted small">
+                                <i class="fas fa-bell fa-lg mb-2" style="color:#d1d5db;"></i>
+                                <p class="mb-0">Loading notifications...</p>
+                            </div>
+                        </div>
+                        <div class="border-top p-2 d-flex justify-content-between">
+                            <button class="btn btn-sm btn-link text-decoration-none" onclick="adminMarkAllRead()" style="font-size:12px;">
+                                <i class="fas fa-check-double me-1"></i>Mark All as Read
+                            </button>
+                            <a href="{{ route('admin.notifications.index') }}" class="btn btn-sm btn-link text-decoration-none" style="font-size:12px;">
+                                View All <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <button class="btn-icon" title="Messages">
                     <i class="fas fa-envelope"></i>
                 </button>
@@ -1285,6 +1318,134 @@
     });
 
     @stack('scripts')
+
+    <script>
+        let adminLastNotifId = 0;
+        let adminNotifSoundEnabled = {{ \App\Models\Setting::where('key', 'admin_notification_sound')->value('value') !== 'disabled' ? 'true' : 'false' }};
+
+        function adminFetchNotifications() {
+            $.get('{{ route("admin.notifications.fetch") }}', function(data) {
+                const dot = document.getElementById('adminNotifDot');
+                const badge = document.getElementById('adminNotifBadge');
+                const list = document.getElementById('adminNotifList');
+                const countSpan = document.getElementById('adminNotifCount');
+
+                if (data.unread_count > 0) {
+                    dot.style.display = '';
+                    badge.style.display = '';
+                    badge.textContent = data.unread_count;
+                } else {
+                    dot.style.display = 'none';
+                    badge.style.display = 'none';
+                }
+
+                countSpan.textContent = data.unread_count + ' new';
+
+                let html = '';
+                if (data.notifications.length === 0) {
+                    html = '<div class="text-center py-4 text-muted small"><i class="fas fa-bell fa-lg mb-2" style="color:#d1d5db;"></i><p class="mb-0">No notifications</p></div>';
+                } else {
+                    data.notifications.forEach(function(n) {
+                        const isNew = n.id > adminLastNotifId && !n.is_read;
+                        const orderUrl = n.order_id ? '{{ url("/admin/orders") }}/' + n.order_id : null;
+                        html += '<div class="dropdown-item d-flex align-items-start gap-3 px-3 py-3 ' + (!n.is_read ? 'bg-light' : '') + '" style="border-bottom:1px solid #f0f0f0;cursor:' + (orderUrl ? 'pointer' : 'default') + ';"' + (orderUrl ? ' onclick="window.location.href=\'' + orderUrl + '\'"' : '') + '>';
+                        html += '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:' + (!n.is_read ? 'rgba(139,92,246,0.12)' : '#f1f3f5') + ';">';
+                        html += '<i class="fas fa-shopping-cart" style="font-size:14px;color:' + (!n.is_read ? '#8B5CF6' : '#6c757d') + ';"></i></div>';
+                        html += '<div class="flex-grow-1 min-width-0"><div class="fw-semibold small" style="font-size:13px;">' + n.title + '</div>';
+                        html += '<div class="text-muted" style="font-size:11px;white-space:normal;">' + (n.message || '') + '</div>';
+                        html += '<div style="font-size:10px;color:#adb5bd;">' + timeAgo(n.created_at) + '</div></div>';
+                        if (isNew) {
+                            html += '<span class="badge bg-primary rounded-pill" style="font-size:8px;">NEW</span>';
+                        }
+                        html += '</div>';
+
+                        if (isNew && adminNotifSoundEnabled) {
+                            playAdminNotifSound();
+                            showAdminToast(n);
+                        }
+                    });
+                }
+                list.innerHTML = html;
+                if (data.latest_id > adminLastNotifId) {
+                    adminLastNotifId = data.latest_id;
+                }
+            });
+        }
+
+        function adminMarkAllRead() {
+            $.post('{{ route("admin.notifications.read-all") }}', {
+                _token: '{{ csrf_token() }}'
+            }, function() {
+                document.getElementById('adminNotifDot').style.display = 'none';
+                document.getElementById('adminNotifBadge').style.display = 'none';
+                document.querySelectorAll('#adminNotifList .dropdown-item').forEach(function(item) {
+                    item.classList.remove('bg-light');
+                });
+                document.getElementById('adminNotifCount').textContent = '0 new';
+            });
+        }
+
+        function showAdminToast(notification) {
+            const toastContainer = document.getElementById('adminToastContainer') || (function() {
+                const el = document.createElement('div');
+                el.id = 'adminToastContainer';
+                el.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:380px;';
+                document.body.appendChild(el);
+                return el;
+            })();
+
+            const toast = document.createElement('div');
+            toast.style.cssText = 'background:#fff;border-radius:12px;padding:16px 20px;box-shadow:0 8px 30px rgba(0,0,0,0.12);border-left:4px solid #8B5CF6;animation:slideInRight 0.3s ease;display:flex;align-items:flex-start;gap:12px;';
+            toast.innerHTML = '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:rgba(139,92,246,0.12);"><i class="fas fa-shopping-cart" style="color:#8B5CF6;font-size:16px;"></i></div><div class="flex-grow-1"><div class="fw-bold small">' + notification.title + '</div><div class="text-muted" style="font-size:12px;">' + (notification.message || '') + '</div></div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#adb5bd;cursor:pointer;font-size:16px;padding:0;">&times;</button>';
+            toastContainer.appendChild(toast);
+
+            setTimeout(function() {
+                toast.style.transition = 'all 0.3s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 5000);
+        }
+
+        function playAdminNotifSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } catch(e) {}
+        }
+
+        function timeAgo(dateStr) {
+            const now = new Date();
+            const date = new Date(dateStr);
+            const seconds = Math.floor((now - date) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            return days + 'd ago';
+        }
+
+        // Add keyframe animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }';
+        document.head.appendChild(style);
+
+        $(document).ready(function() {
+            adminFetchNotifications();
+            setInterval(adminFetchNotifications, 15000);
+        });
+    </script>
 </script>
 
 </body>

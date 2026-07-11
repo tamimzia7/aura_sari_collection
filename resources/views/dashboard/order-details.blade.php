@@ -87,6 +87,9 @@
                         <a href="{{ route('dashboard.profile') }}" class="list-group-item list-group-item-action border-0 nav-link">
                             <i class="far fa-user me-2"></i>Profile Settings
                         </a>
+                        <a href="{{ route('notifications.index') }}" class="list-group-item list-group-item-action border-0 nav-link">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                        </a>
                         <a class="list-group-item list-group-item-action border-0 nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fas fa-sign-out-alt me-2"></i>Logout
                         </a>

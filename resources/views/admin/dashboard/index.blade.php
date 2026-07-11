@@ -252,6 +252,110 @@
         </div>
     </div>
 
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-shopping-cart"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">New Orders Today</div>
+                <div class="stat-value">{{ number_format($newOrdersToday) }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-bell"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Unread Notifications</div>
+                <div class="stat-value">{{ number_format($unreadNotifications) }}</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-bell me-2"></i>Recent Notifications</span>
+                <a href="{{ route('admin.notifications.index') }}" class="btn btn-sm btn-soft-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                @if($recentNotifications->count() > 0)
+                    <div class="list-group list-group-flush">
+                        @foreach($recentNotifications as $notif)
+                        <a href="{{ $notif->order_id ? route('admin.orders.show', $notif->order_id) : '#' }}" class="list-group-item d-flex align-items-center gap-3 px-4 py-3 border-0 border-bottom text-decoration-none">
+                            <div class="avatar-md" style="background: {{ !$notif->is_read ? 'rgba(139,92,246,0.12)' : '#f1f3f5' }}; color: {{ !$notif->is_read ? 'var(--primary-color)' : '#6c757d' }};">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-semibold" style="font-size:14px;color:{{ !$notif->is_read ? 'var(--sidebar-bg)' : '#6c757d' }};">{{ $notif->title }}</div>
+                                <div class="small text-muted text-truncate">{{ $notif->message }}</div>
+                                <div class="small text-muted">{{ $notif->created_at->diffForHumans() }}</div>
+                            </div>
+                            @if(!$notif->is_read)
+                                <span class="badge bg-primary rounded-pill" style="font-size:8px;">NEW</span>
+                            @endif
+                        </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-bell fa-2x mb-2" style="color: #d1d5db;"></i>
+                        <p class="mb-0">No notifications yet.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <span><i class="fas fa-bolt me-2"></i>Quick Actions</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="{{ route('admin.products.create') }}" class="btn btn-soft-primary w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
+                            <i class="fas fa-plus-circle fa-lg"></i>
+                            <span style="font-size:13px;">Add Product</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-soft-primary w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
+                            <i class="fas fa-truck fa-lg"></i>
+                            <span style="font-size:13px;">Manage Orders</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('admin.categories.create') }}" class="btn btn-soft-success w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
+                            <i class="fas fa-tag fa-lg"></i>
+                            <span style="font-size:13px;">Add Category</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('admin.collections.create') }}" class="btn btn-soft-warning w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
+                            <i class="fas fa-layer-group fa-lg"></i>
+                            <span style="font-size:13px;">Add Collection</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('admin.coupons.create') }}" class="btn btn-soft-primary w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
+                            <i class="fas fa-percent fa-lg"></i>
+                            <span style="font-size:13px;">Add Coupon</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('admin.banners.create') }}" class="btn btn-soft-danger w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
+                            <i class="fas fa-images fa-lg"></i>
+                            <span style="font-size:13px;">Add Banner</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4 mb-4">
@@ -432,53 +536,6 @@
         </div>
     </div>
 
-    <div class="col-xl-6">
-        <div class="card">
-            <div class="card-header">
-                <span><i class="fas fa-bolt me-2"></i>Quick Actions</span>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-6">
-                        <a href="{{ route('admin.products.create') }}" class="btn btn-soft-primary w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
-                            <i class="fas fa-plus-circle fa-lg"></i>
-                            <span style="font-size:13px;">Add Product</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-soft-primary w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
-                            <i class="fas fa-truck fa-lg"></i>
-                            <span style="font-size:13px;">Manage Orders</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.categories.create') }}" class="btn btn-soft-success w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
-                            <i class="fas fa-tag fa-lg"></i>
-                            <span style="font-size:13px;">Add Category</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.collections.create') }}" class="btn btn-soft-warning w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
-                            <i class="fas fa-layer-group fa-lg"></i>
-                            <span style="font-size:13px;">Add Collection</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.coupons.create') }}" class="btn btn-soft-primary w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
-                            <i class="fas fa-percent fa-lg"></i>
-                            <span style="font-size:13px;">Add Coupon</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.banners.create') }}" class="btn btn-soft-danger w-100 py-3 d-flex flex-column align-items-center gap-1" style="border-radius:12px;">
-                            <i class="fas fa-images fa-lg"></i>
-                            <span style="font-size:13px;">Add Banner</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 

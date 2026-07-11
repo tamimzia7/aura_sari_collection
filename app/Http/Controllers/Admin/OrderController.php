@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -64,7 +65,31 @@ class OrderController extends Controller
             $data['payment_status'] = $request->payment_status;
         }
 
+        $oldStatus = $order->status;
         $order->update($data);
+
+        if ($request->status !== $oldStatus) {
+            $statusLabels = [
+                'pending' => 'is now Pending.',
+                'confirmed' => 'has been Confirmed!',
+                'processing' => 'is now Processing.',
+                'shipped' => 'has been Shipped!',
+                'delivered' => 'has been Delivered!',
+                'cancelled' => 'has been Cancelled.',
+            ];
+            $label = $statusLabels[$request->status] ?? 'has been updated.';
+            $title = 'Order Status Updated';
+            $message = "Order #{$order->order_number} {$label}";
+
+            if ($order->user_id) {
+                Notification::createForCustomer(
+                    $order->user_id,
+                    $title,
+                    $message,
+                    $order->id
+                );
+            }
+        }
 
         return back()->with('success', 'Order status updated successfully.');
     }
@@ -79,6 +104,15 @@ class OrderController extends Controller
 
         $order->update(['payment_status' => Order::PAYMENT_PAID]);
 
+        if ($order->user_id) {
+            Notification::createForCustomer(
+                $order->user_id,
+                'Payment Verified',
+                "Payment for Order #{$order->order_number} has been verified.",
+                $order->id
+            );
+        }
+
         return back()->with('success', 'Payment verified successfully.');
     }
 
@@ -86,6 +120,15 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $order->update(['payment_status' => Order::PAYMENT_PAID]);
+
+        if ($order->user_id) {
+            Notification::createForCustomer(
+                $order->user_id,
+                'Payment Marked as Paid',
+                "Payment for Order #{$order->order_number} has been marked as paid.",
+                $order->id
+            );
+        }
 
         return back()->with('success', 'Payment marked as paid.');
     }
@@ -95,6 +138,15 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->update(['status' => Order::STATUS_CONFIRMED]);
 
+        if ($order->user_id) {
+            Notification::createForCustomer(
+                $order->user_id,
+                'Order Confirmed',
+                "Your Order #{$order->order_number} has been confirmed.",
+                $order->id
+            );
+        }
+
         return back()->with('success', 'Order confirmed successfully.');
     }
 
@@ -102,6 +154,15 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $order->update(['status' => Order::STATUS_CANCELLED]);
+
+        if ($order->user_id) {
+            Notification::createForCustomer(
+                $order->user_id,
+                'Order Cancelled',
+                "Your Order #{$order->order_number} has been cancelled.",
+                $order->id
+            );
+        }
 
         return back()->with('success', 'Order rejected.');
     }
@@ -123,6 +184,15 @@ class OrderController extends Controller
             }
 
             $order->update(['status' => Order::STATUS_CANCELLED]);
+
+            if ($order->user_id) {
+                Notification::createForCustomer(
+                    $order->user_id,
+                    'Order Cancelled',
+                    "Your Order #{$order->order_number} has been cancelled.",
+                    $order->id
+                );
+            }
         });
 
         return back()->with('success', 'Order cancelled successfully.');

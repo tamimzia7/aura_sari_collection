@@ -6,6 +6,7 @@ use App\Http\Requests\CheckoutRequest;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Coupon;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -103,6 +104,12 @@ class CheckoutController extends Controller
 
             Cart::where('user_id', Auth::id())->delete();
             session()->forget('coupon');
+
+            Notification::createForAdmin(
+                'New Order Received',
+                "Order #{$order->order_number} placed by {$order->user->name}. Total: ₹".number_format($grandTotal, 0),
+                $order->id
+            );
 
             return $order;
         });
@@ -224,6 +231,12 @@ class CheckoutController extends Controller
             if ($product->stock_quantity <= 0) {
                 $product->update(['stock_status' => 'out_of_stock']);
             }
+
+            Notification::createForAdmin(
+                'New Order Received',
+                "Order #{$order->order_number} placed by {$order->user->name}. Total: ₹".number_format($grandTotal, 0),
+                $order->id
+            );
 
             return $order;
         });

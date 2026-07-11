@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CollectionController as AdminCollectionController
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReportsController as AdminReportsController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewCollectionController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
@@ -113,6 +115,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/remove', [WishlistController::class, 'remove'])->name('remove');
         Route::post('/move-to-cart', [WishlistController::class, 'moveToCart'])->name('move-to-cart');
     });
+
+    // Customer Notifications
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/fetch', [NotificationController::class, 'fetch'])->name('fetch');
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('read-all');
+        Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // Admin routes
@@ -161,6 +172,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Settings
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+
+    // Admin Notifications
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [AdminNotificationController::class, 'index'])->name('index');
+        Route::get('/fetch', [AdminNotificationController::class, 'fetch'])->name('fetch');
+        Route::post('/{id}/read', [AdminNotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('read-all');
+        Route::delete('/{id}', [AdminNotificationController::class, 'destroy'])->name('destroy');
+    });
 
     // Users
     Route::resource('users', AdminUserController::class);

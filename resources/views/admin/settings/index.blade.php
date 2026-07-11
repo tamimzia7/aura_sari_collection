@@ -29,6 +29,10 @@ $groups = [
         ['key' => 'social_whatsapp', 'label' => 'WhatsApp', 'type' => 'text', 'icon' => 'fab fa-whatsapp', 'icon_color' => '#25D366'],
         ['key' => 'social_youtube', 'label' => 'YouTube', 'type' => 'url', 'icon' => 'fab fa-youtube', 'icon_color' => '#FF0000'],
     ]],
+    'notifications' => ['label' => 'Notification Settings', 'icon' => 'fa-bell', 'fields' => [
+        ['key' => 'admin_notification_sound', 'label' => 'Admin Notification Sound', 'type' => 'select', 'options' => ['enabled' => 'Enabled', 'disabled' => 'Disabled']],
+        ['key' => 'customer_notification_sound', 'label' => 'Customer Notification Sound', 'type' => 'select', 'options' => ['enabled' => 'Enabled', 'disabled' => 'Disabled']],
+    ]],
     'appearance' => ['label' => 'Appearance', 'icon' => 'fa-palette', 'fields' => [
         ['key' => 'logo_path', 'label' => 'Logo URL', 'type' => 'text', 'help' => 'Enter the URL or path for the store logo'],
         ['key' => 'favicon_path', 'label' => 'Favicon URL', 'type' => 'text', 'help' => 'Enter the URL or path for the favicon'],

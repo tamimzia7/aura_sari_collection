@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -94,6 +95,10 @@ class DashboardController extends Controller
             ->count();
         $pendingReviewsCount = Review::where('is_approved', false)->count();
 
+        $unreadNotifications = Notification::where('type', 'admin')->where('is_read', false)->count();
+        $recentNotifications = Notification::where('type', 'admin')->latest()->take(8)->get();
+        $newOrdersToday = Order::whereDate('created_at', today())->count();
+
         return view('admin.dashboard.index', compact(
             'totalProducts',
             'totalCategories',
@@ -123,6 +128,9 @@ class DashboardController extends Controller
             'newOrdersCount',
             'pendingPaymentsCount',
             'pendingCodCount',
+            'unreadNotifications',
+            'recentNotifications',
+            'newOrdersToday',
         ));
     }
 }
