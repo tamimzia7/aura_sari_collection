@@ -21,6 +21,11 @@ class ReportsController extends Controller
             ->orderBy('month')
             ->pluck('total', 'month');
 
+        $chartData = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $chartData[] = $monthlySales->get($m, 0);
+        }
+
         $topProducts = OrderItem::selectRaw('product_id, SUM(quantity) as total_qty')
             ->groupBy('product_id')
             ->orderByDesc('total_qty')
@@ -38,6 +43,7 @@ class ReportsController extends Controller
             'totalRevenue',
             'totalOrders',
             'monthlySales',
+            'chartData',
             'topProducts',
             'topCustomers',
         ));

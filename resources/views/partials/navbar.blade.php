@@ -73,9 +73,6 @@
                                 <button class="btn btn-sm btn-link text-decoration-none p-1" onclick="customerMarkAllRead()" style="font-size:11px;color:rgba(255,255,255,0.6);">
                                     <i class="fas fa-check-double me-1"></i>Mark All Read
                                 </button>
-                                <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-link text-decoration-none p-1" style="font-size:11px;color:#d4af37;">
-                                    View All <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -382,34 +379,35 @@
 
             let html = '';
             if (data.notifications.length === 0) {
-                html = '<div class="text-center py-4 text-muted small"><i class="far fa-bell fa-lg mb-2"></i><p class="mb-0">No notifications</p></div>';
+                html = '<div class="text-center py-4 text-muted small"><i class="far fa-bell fa-lg mb-2"></i><p class="mb-0">No new notifications</p></div>';
             } else {
-                data.notifications.forEach(function(n) {
-                    const isNew = n.id > customerLastNotifId && !n.is_read;
-                    const icon = n.title.includes('Delivered') ? 'fa-check-circle' :
-                                 n.title.includes('Shipped') ? 'fa-truck' :
-                                 n.title.includes('Confirmed') ? 'fa-check' :
-                                 n.title.includes('Processing') ? 'fa-spinner' :
-                                 n.title.includes('Cancelled') ? 'fa-times-circle' :
-                                 n.title.includes('Verified') || n.title.includes('Paid') ? 'fa-money-bill-wave' : 'fa-bell';
+                const n = data.notifications[0];
+                const isNew = n.id > customerLastNotifId && !n.is_read;
+                const icon = n.title.includes('Delivered') ? 'fa-check-circle' :
+                             n.title.includes('Shipped') ? 'fa-truck' :
+                             n.title.includes('Confirmed') ? 'fa-check' :
+                             n.title.includes('Processing') ? 'fa-spinner' :
+                             n.title.includes('Cancelled') ? 'fa-times-circle' :
+                             n.title.includes('Verified') || n.title.includes('Paid') ? 'fa-money-bill-wave' : 'fa-bell';
 
-                     const orderLink = n.order_id ? '{{ url("/orders") }}/' + n.order_id : '#';
-                     html += '<a class="dropdown-item d-flex align-items-start gap-3 px-3 py-2 ' + (!n.is_read ? 'bg-dark bg-opacity-25' : '') + '" href="' + orderLink + '" style="border-bottom:1px solid rgba(255,255,255,0.05);">';
-                    html += '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;background:' + (!n.is_read ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)') + ';">';
-                    html += '<i class="fas ' + icon + '" style="font-size:12px;color:' + (!n.is_read ? '#d4af37' : 'rgba(255,255,255,0.4)') + ';"></i></div>';
-                    html += '<div class="flex-grow-1 min-width-0"><div class="fw-semibold" style="font-size:12px;color:' + (!n.is_read ? '#fff' : 'rgba(255,255,255,0.6)') + ';">' + n.title + '</div>';
-                    html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);white-space:normal;">' + (n.message || '') + '</div>';
-                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);">' + customerTimeAgo(n.created_at) + '</div></div>';
-                    if (isNew) {
-                        html += '<span class="badge rounded-pill" style="background:#d4af37;color:#0a0a1a;font-size:8px;">NEW</span>';
-                    }
-                    html += '</a>';
+                 const orderLink = n.order_id ? '{{ url("/orders") }}/' + n.order_id : '#';
+                 html += '<a class="dropdown-item d-flex align-items-start gap-3 px-3 py-2 ' + (!n.is_read ? 'bg-dark bg-opacity-25' : '') + '" href="' + orderLink + '" style="border-bottom:1px solid rgba(255,255,255,0.05);">';
+                html += '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;background:' + (!n.is_read ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)') + ';">';
+                html += '<i class="fas ' + icon + '" style="font-size:12px;color:' + (!n.is_read ? '#d4af37' : 'rgba(255,255,255,0.4)') + ';"></i></div>';
+                html += '<div class="flex-grow-1 min-width-0"><div class="fw-semibold" style="font-size:12px;color:' + (!n.is_read ? '#fff' : 'rgba(255,255,255,0.6)') + ';">' + n.title + '</div>';
+                html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);white-space:normal;">' + (n.message || '') + '</div>';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);">' + customerTimeAgo(n.created_at) + '</div></div>';
+                if (isNew) {
+                    html += '<span class="badge rounded-pill" style="background:#d4af37;color:#0a0a1a;font-size:8px;">NEW</span>';
+                }
+                html += '</a>';
 
-                    if (isNew && customerNotifSoundEnabled) {
-                        playCustomerNotifSound();
-                        showCustomerToast(n);
-                    }
-                });
+                html += '<a href="{{ route("notifications.index") }}" class="dropdown-item text-center py-2" style="font-size:11px;color:#d4af37;border-bottom:none;">View All Notifications <i class="fas fa-arrow-right ms-1"></i></a>';
+
+                if (isNew && customerNotifSoundEnabled) {
+                    playCustomerNotifSound();
+                    showCustomerToast(n);
+                }
             }
             list.innerHTML = html;
             if (data.latest_id > customerLastNotifId) {
@@ -457,7 +455,7 @@
             toast.style.opacity = '0';
             toast.style.transform = 'translateY(20px)';
             setTimeout(function() { toast.remove(); }, 300);
-        }, 5000);
+        }, 1000);
     }
 
     function playCustomerNotifSound() {

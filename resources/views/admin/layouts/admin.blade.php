@@ -1221,9 +1221,6 @@
                             <button class="btn btn-sm btn-link text-decoration-none" onclick="adminMarkAllRead()" style="font-size:12px;">
                                 <i class="fas fa-check-double me-1"></i>Mark All as Read
                             </button>
-                            <a href="{{ route('admin.notifications.index') }}" class="btn btn-sm btn-link text-decoration-none" style="font-size:12px;">
-                                View All <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -1343,27 +1340,28 @@
 
                 let html = '';
                 if (data.notifications.length === 0) {
-                    html = '<div class="text-center py-4 text-muted small"><i class="fas fa-bell fa-lg mb-2" style="color:#d1d5db;"></i><p class="mb-0">No notifications</p></div>';
+                    html = '<div class="text-center py-4 text-muted small"><i class="fas fa-bell fa-lg mb-2" style="color:#d1d5db;"></i><p class="mb-0">No new notifications</p></div>';
                 } else {
-                    data.notifications.forEach(function(n) {
-                        const isNew = n.id > adminLastNotifId && !n.is_read;
-                        const orderUrl = n.order_id ? '{{ url("/admin/orders") }}/' + n.order_id : null;
-                        html += '<div class="dropdown-item d-flex align-items-start gap-3 px-3 py-3 ' + (!n.is_read ? 'bg-light' : '') + '" style="border-bottom:1px solid #f0f0f0;cursor:' + (orderUrl ? 'pointer' : 'default') + ';"' + (orderUrl ? ' onclick="window.location.href=\'' + orderUrl + '\'"' : '') + '>';
-                        html += '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:' + (!n.is_read ? 'rgba(139,92,246,0.12)' : '#f1f3f5') + ';">';
-                        html += '<i class="fas fa-shopping-cart" style="font-size:14px;color:' + (!n.is_read ? '#8B5CF6' : '#6c757d') + ';"></i></div>';
-                        html += '<div class="flex-grow-1 min-width-0"><div class="fw-semibold small" style="font-size:13px;">' + n.title + '</div>';
-                        html += '<div class="text-muted" style="font-size:11px;white-space:normal;">' + (n.message || '') + '</div>';
-                        html += '<div style="font-size:10px;color:#adb5bd;">' + timeAgo(n.created_at) + '</div></div>';
-                        if (isNew) {
-                            html += '<span class="badge bg-primary rounded-pill" style="font-size:8px;">NEW</span>';
-                        }
-                        html += '</div>';
+                    const n = data.notifications[0];
+                    const isNew = n.id > adminLastNotifId && !n.is_read;
+                    const orderUrl = n.order_id ? '{{ url("/admin/orders") }}/' + n.order_id : null;
+                    html += '<div class="dropdown-item d-flex align-items-start gap-3 px-3 py-3 ' + (!n.is_read ? 'bg-light' : '') + '" style="border-bottom:1px solid #f0f0f0;cursor:' + (orderUrl ? 'pointer' : 'default') + ';"' + (orderUrl ? ' onclick="window.location.href=\'' + orderUrl + '\'"' : '') + '>';
+                    html += '<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:' + (!n.is_read ? 'rgba(139,92,246,0.12)' : '#f1f3f5') + ';">';
+                    html += '<i class="fas fa-shopping-cart" style="font-size:14px;color:' + (!n.is_read ? '#8B5CF6' : '#6c757d') + ';"></i></div>';
+                    html += '<div class="flex-grow-1 min-width-0"><div class="fw-semibold small" style="font-size:13px;">' + n.title + '</div>';
+                    html += '<div class="text-muted" style="font-size:11px;white-space:normal;">' + (n.message || '') + '</div>';
+                    html += '<div style="font-size:10px;color:#adb5bd;">' + timeAgo(n.created_at) + '</div></div>';
+                    if (isNew) {
+                        html += '<span class="badge bg-primary rounded-pill" style="font-size:8px;">NEW</span>';
+                    }
+                    html += '</div>';
 
-                        if (isNew && adminNotifSoundEnabled) {
-                            playAdminNotifSound();
-                            showAdminToast(n);
-                        }
-                    });
+                    html += '<a href="{{ route("admin.notifications.index") }}" class="dropdown-item text-center py-2" style="font-size:12px;color:#8B5CF6;border-bottom:none;">View All Notifications <i class="fas fa-arrow-right ms-1"></i></a>';
+
+                    if (isNew && adminNotifSoundEnabled) {
+                        playAdminNotifSound();
+                        showAdminToast(n);
+                    }
                 }
                 list.innerHTML = html;
                 if (data.latest_id > adminLastNotifId) {
@@ -1404,7 +1402,7 @@
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateX(100px)';
                 setTimeout(function() { toast.remove(); }, 300);
-            }, 5000);
+            }, 1000);
         }
 
         function playAdminNotifSound() {

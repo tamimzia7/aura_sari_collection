@@ -407,7 +407,7 @@ $(document).ready(function () {
         toast.text(message).removeClass('error');
         if (isError) toast.addClass('error');
         toast.fadeIn(200);
-        setTimeout(() => toast.fadeOut(300), 3000);
+        setTimeout(() => toast.fadeOut(300), 1000);
     }
 
     function removeCard(wishlistId) {

@@ -758,7 +758,7 @@ $(document).ready(function () {
         }).text(message).appendTo('body');
         setTimeout(() => {
             toast.fadeOut(300, () => toast.remove());
-        }, 3500);
+        }, 1000);
     }
 });
 </script>

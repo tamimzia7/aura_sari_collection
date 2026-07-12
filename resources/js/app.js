@@ -560,7 +560,7 @@
                 toast.style.transform = 'translateX(100%)';
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 1000);
         },
     };
 

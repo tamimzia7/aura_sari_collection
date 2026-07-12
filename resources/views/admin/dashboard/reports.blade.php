@@ -123,10 +123,7 @@
 <script>
 $(document).ready(function() {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const data = [];
-    for (let i = 1; i <= 12; i++) {
-        data.push({{ $monthlySales->get($i, 0) }});
-    }
+    const data = @json($chartData);
     new Chart(document.getElementById('revenueChart'), {
         type: 'line',
         data: {

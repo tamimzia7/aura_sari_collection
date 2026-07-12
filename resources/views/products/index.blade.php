@@ -1434,8 +1434,9 @@ $(function() {
         $('.toast-container').append(html);
 
         const toastEl = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        const toast = new bootstrap.Toast(toastEl, { delay: 1000 });
         toast.show();
+        setTimeout(() => { toast.hide(); }, 1000);
 
         toastEl.addEventListener('hidden.bs.toast', function() {
             $(this).remove();
