@@ -34,8 +34,8 @@ class WishlistController extends Controller
 
             return response()->json([
                 'success' => true,
-                'added' => false,
-                'message' => 'Removed from wishlist',
+                'in_wishlist' => false,
+                'wishlist_count' => auth()->user()->wishlists()->count(),
             ]);
         }
 
@@ -46,8 +46,8 @@ class WishlistController extends Controller
 
         return response()->json([
             'success' => true,
-            'added' => true,
-            'message' => 'Added to wishlist',
+            'in_wishlist' => true,
+            'wishlist_count' => auth()->user()->wishlists()->count(),
         ]);
     }
 
@@ -64,7 +64,8 @@ class WishlistController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Removed from wishlist',
+            'in_wishlist' => false,
+            'wishlist_count' => auth()->user()->wishlists()->count(),
         ]);
     }
 
@@ -96,7 +97,7 @@ class WishlistController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Moved to cart',
+            'wishlist_count' => auth()->user()->wishlists()->count(),
         ]);
     }
 }

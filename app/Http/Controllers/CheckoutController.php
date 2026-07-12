@@ -32,13 +32,14 @@ class CheckoutController extends Controller
 
         $coupon = session('coupon');
         $discount = $coupon['discount'] ?? 0;
+        $couponCode = $coupon['code'] ?? null;
         $shippingCost = 0;
         $tax = 0;
         $grandTotal = $subtotal - $discount + $shippingCost + $tax;
 
         $settings = Setting::pluck('value', 'key');
 
-        return view('checkout.index', compact('cartItems', 'addresses', 'subtotal', 'discount', 'shippingCost', 'tax', 'grandTotal', 'settings'));
+        return view('checkout.index', compact('cartItems', 'addresses', 'subtotal', 'discount', 'couponCode', 'shippingCost', 'tax', 'grandTotal', 'settings'));
     }
 
     public function store(CheckoutRequest $request)
@@ -73,6 +74,7 @@ class CheckoutController extends Controller
                 'billing_address_id' => $request->billing_address_id,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
+                'coupon_id' => session('coupon.coupon_id'),
                 'coupon_code' => session('coupon.code'),
                 'shipping_cost' => $shippingCost,
                 'tax' => $tax,
@@ -118,6 +120,91 @@ class CheckoutController extends Controller
             ->with('success', 'Order placed successfully!');
     }
 
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'code' => ['required', 'string', 'exists:coupons,code'],
+        ]);
+
+        $coupon = Coupon::where('code', $request->code)
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->first();
+
+        if (! $coupon) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired coupon code',
+            ]);
+        }
+
+        if ($coupon->max_uses && $coupon->used_count >= $coupon->max_uses) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This coupon has reached its usage limit',
+            ]);
+        }
+
+        if ($request->has('subtotal')) {
+            $subtotal = (float) $request->subtotal;
+        } else {
+            $cartItems = Cart::with('product')
+                ->where('user_id', Auth::id())
+                ->get();
+
+            $subtotal = $cartItems->sum(fn ($item) => ($item->product->discounted_price * $item->quantity));
+        }
+
+        if ($coupon->min_order_amount && $subtotal < $coupon->min_order_amount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minimum order amount of ₹'.number_format($coupon->min_order_amount, 0).' is required',
+            ]);
+        }
+
+        $discount = $coupon->type === 'percentage'
+            ? ($subtotal * $coupon->value / 100)
+            : min($coupon->value, $subtotal);
+
+        session(['coupon' => [
+            'code' => $coupon->code,
+            'coupon_id' => $coupon->id,
+            'discount' => $discount,
+        ]]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon applied! You saved ₹'.number_format($discount, 0),
+            'coupon_code' => $coupon->code,
+            'discount' => $discount,
+            'subtotal' => $subtotal,
+            'grand_total' => $subtotal - $discount,
+        ]);
+    }
+
+    public function removeCoupon(Request $request)
+    {
+        session()->forget('coupon');
+
+        if ($request->has('subtotal')) {
+            $subtotal = (float) $request->subtotal;
+        } else {
+            $cartItems = Cart::with('product')
+                ->where('user_id', Auth::id())
+                ->get();
+
+            $subtotal = $cartItems->sum(fn ($item) => ($item->product->discounted_price * $item->quantity));
+        }
+
+        return response()->json([
+            'success' => true,
+            'subtotal' => $subtotal,
+            'grand_total' => $subtotal,
+        ]);
+    }
+
     public function directCheckout($id)
     {
         $product = Product::with('images')->findOrFail($id);
@@ -132,15 +219,17 @@ class CheckoutController extends Controller
         $price = $product->discounted_price;
         $subtotal = $price * $quantity;
         $shippingCost = 0;
-        $discount = 0;
+
+        $coupon = session('coupon');
+        $discount = $coupon['discount'] ?? 0;
+        $couponCode = $coupon['code'] ?? null;
+
         $grandTotal = $subtotal - $discount + $shippingCost;
 
-        $view = view('checkout.direct', compact(
+        return view('checkout.direct', compact(
             'product', 'quantity', 'price', 'subtotal',
-            'shippingCost', 'discount', 'grandTotal', 'settings'
+            'shippingCost', 'discount', 'couponCode', 'grandTotal', 'settings'
         ));
-
-        return $view;
     }
 
     public function directStore(Request $request)
@@ -172,12 +261,18 @@ class CheckoutController extends Controller
         $price = $product->discounted_price;
         $subtotal = $price * $validated['quantity'];
         $shippingCost = 0;
-        $grandTotal = $subtotal + $shippingCost;
+
+        $couponData = session('coupon');
+        $discount = min($couponData['discount'] ?? 0, $subtotal);
+        $couponId = $couponData['coupon_id'] ?? null;
+        $couponCode = $couponData['code'] ?? null;
+
+        $grandTotal = $subtotal - $discount + $shippingCost;
 
         $isAdvancePayment = $validated['payment_method'] !== 'cod';
         $paymentStatus = $isAdvancePayment ? Order::PAYMENT_PENDING_VERIFICATION : Order::PAYMENT_CASH_ON_DELIVERY;
 
-        $order = DB::transaction(function () use ($validated, $product, $price, $subtotal, $shippingCost, $grandTotal, $paymentStatus, $isAdvancePayment) {
+        $order = DB::transaction(function () use ($validated, $product, $price, $subtotal, $discount, $couponId, $couponCode, $shippingCost, $grandTotal, $paymentStatus, $isAdvancePayment) {
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'status' => Order::STATUS_PENDING,
@@ -188,8 +283,9 @@ class CheckoutController extends Controller
                 'shipping_address_id' => null,
                 'billing_address_id' => null,
                 'subtotal' => $subtotal,
-                'discount' => 0,
-                'coupon_code' => null,
+                'discount' => $discount,
+                'coupon_id' => $couponId,
+                'coupon_code' => $couponCode,
                 'shipping_cost' => $shippingCost,
                 'tax' => 0,
                 'grand_total' => $grandTotal,
@@ -231,6 +327,12 @@ class CheckoutController extends Controller
             if ($product->stock_quantity <= 0) {
                 $product->update(['stock_status' => 'out_of_stock']);
             }
+
+            if ($couponCode) {
+                Coupon::where('code', $couponCode)->increment('used_count');
+            }
+
+            session()->forget('coupon');
 
             Notification::createForAdmin(
                 'New Order Received',

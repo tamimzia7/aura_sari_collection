@@ -717,14 +717,22 @@
                 quantity: qty
             },
             success: function(response) {
-                button.innerHTML = '<i class="fas fa-check me-2"></i> Added!';
-                setTimeout(() => {
+                if (response.in_cart) {
+                    button.innerHTML = '<i class="fas fa-check me-2"></i> Remove from Cart';
+                    button.classList.add('in-cart');
+                    if (typeof showToast === 'function') showToast('Added to Cart', 'success');
+                } else {
                     button.innerHTML = originalHtml;
+                    button.classList.remove('in-cart');
+                    if (typeof showToast === 'function') showToast('Removed from Cart', 'info');
+                }
+                setTimeout(() => {
                     button.disabled = false;
                 }, 2000);
                 if (response.cart_count !== undefined) {
-                    $('.cart-count').text(response.cart_count);
+                    setCartBadge(response.cart_count);
                 }
+                document.dispatchEvent(new CustomEvent('cart-updated', { detail: response }));
             },
             error: function(xhr) {
                 button.innerHTML = originalHtml;
@@ -751,15 +759,13 @@
                 product_id: productId
             },
             success: function(response) {
-                if (response.added) {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    button.classList.add('active');
-                } else {
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                    button.classList.remove('active');
+                icon.className = response.in_wishlist ? 'fas fa-heart' : 'far fa-heart';
+                button.classList.toggle('active', response.in_wishlist);
+                if (response.wishlist_count !== undefined) {
+                    setWishlistBadge(response.wishlist_count);
                 }
+                if (typeof showToast === 'function') showToast(response.in_wishlist ? 'Added to Wishlist' : 'Removed from Wishlist', response.in_wishlist ? 'success' : 'info');
+                document.dispatchEvent(new CustomEvent('wishlist-updated', { detail: response }));
             },
             error: function(xhr) {
                 if (xhr.status === 401) {

@@ -108,13 +108,14 @@
                                 <a href="{{ route('admin.coupons.edit', $coupon) }}" class="btn btn-soft-primary btn-sm" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button class="btn btn-soft-danger btn-sm" title="Delete" onclick="confirmDelete('{{ $coupon->code }}', {{ $coupon->id }})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <form action="{{ route('admin.coupons.destroy', $coupon) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete coupon ' + @js($coupon->code) + '?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
-                            <form id="delete-form-{{ $coupon->id }}" action="{{ route('admin.coupons.destroy', $coupon) }}" method="POST" class="d-none">
-                                @csrf @method('DELETE')
-                            </form>
                         </td>
                     </tr>
                     @empty
@@ -141,12 +142,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-function confirmDelete(code, id) {
-    if (confirm('Are you sure you want to delete coupon "' + code + '"?')) {
-        document.getElementById('delete-form-' + id).submit();
-    }
-}
-</script>
-@endpush

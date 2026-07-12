@@ -17,14 +17,11 @@
             this.cacheDOM();
             this.bindEvents();
             this.initTooltips();
-            this.updateCartBadge();
-            this.updateWishlistBadge();
+            this.refreshCounts();
         },
 
         cacheDOM() {
             this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            this.cartCountEl = document.getElementById('cartCount');
-            this.wishlistCountEl = document.getElementById('wishlistCount');
             this.searchInput = document.getElementById('searchInput');
             this.searchResults = document.getElementById('searchResults');
             this.toastContainer = this.createToastContainer();
@@ -44,30 +41,37 @@
             document.addEventListener('click', (e) => {
                 const addBtn = e.target.closest('.add-to-cart-btn');
                 if (addBtn) {
+                    if (addBtn.hasAttribute('onclick')) return;
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.addToCart(addBtn);
                 }
 
                 const wishBtn = e.target.closest('.wishlist-btn');
                 if (wishBtn) {
+                    if (wishBtn.hasAttribute('onclick')) return;
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.toggleWishlist(wishBtn);
                 }
 
                 const qvBtn = e.target.closest('.quick-view-btn');
                 if (qvBtn) {
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.quickView(qvBtn);
                 }
 
                 const qtyInput = e.target.closest('.quantity-input');
                 if (qtyInput) {
+                    e.stopImmediatePropagation();
                     this.handleQuantityChange(qtyInput);
                 }
 
                 const removeBtn = e.target.closest('.remove-cart-item');
                 if (removeBtn) {
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.removeFromCart(removeBtn);
                 }
             });
@@ -101,8 +105,18 @@
                 });
             }
 
-            document.addEventListener('cart-updated', () => this.updateCartBadge());
-            document.addEventListener('wishlist-updated', () => this.updateWishlistBadge());
+            document.addEventListener('cart-updated', (e) => {
+                if (e.detail && e.detail.cart_count !== undefined) {
+                    this.cart.count = e.detail.cart_count;
+                }
+                this.updateCartBadge();
+            });
+            document.addEventListener('wishlist-updated', (e) => {
+                if (e.detail && e.detail.wishlist_count !== undefined) {
+                    this.wishlist.count = e.detail.wishlist_count;
+                }
+                this.updateWishlistBadge();
+            });
         },
 
         initTooltips() {
@@ -129,7 +143,7 @@
             const formData = new FormData();
             formData.append('_token', this.csrfToken);
             formData.append('product_id', productId);
-            formData.append('qty', 1);
+            formData.append('quantity', 1);
 
             fetch('/cart/add', {
                 method: 'POST',
@@ -139,16 +153,28 @@
                 },
                 body: formData,
             })
-                .then((res) => res.json())
+                .then((res) => {
+                    if (res.status === 401) {
+                        window.location.href = '/login';
+                        return null;
+                    }
+                    if (!res.ok) throw new Error('Request failed');
+                    return res.json();
+                })
                 .then((data) => {
+                    if (!data) return;
                     if (data.success) {
-                        if (data.cartCount !== undefined) {
-                            this.cart.count = data.cartCount;
+                        if (data.in_cart) {
+                            btn.innerHTML = '<i class="fas fa-check me-1"></i> Remove from Cart';
+                            btn.classList.add('in-cart');
+                            this.showToast('Added to Cart', 'success');
                         } else {
-                            this.cart.count++;
+                            btn.innerHTML = '<i class="fas fa-shopping-bag me-1"></i> Add to Cart';
+                            btn.classList.remove('in-cart');
+                            this.showToast('Removed from Cart', 'info');
                         }
+                        this.cart.count = data.cart_count ?? this.cart.count;
                         this.updateCartBadge();
-                        this.showToast(`${productName} added to cart!`, 'success');
                         document.dispatchEvent(new CustomEvent('cart-updated', { detail: data }));
                     } else {
                         this.showToast(data.message || 'Failed to add to cart', 'error');
@@ -168,9 +194,9 @@
 
             const formData = new FormData();
             formData.append('_token', this.csrfToken);
-            formData.append('_method', 'DELETE');
+            formData.append('cart_id', cartId);
 
-            fetch(`/cart/${cartId}`, {
+            fetch('/cart/remove', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -181,7 +207,7 @@
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.success) {
-                        this.cart.count = data.cartCount ?? Math.max(0, this.cart.count - 1);
+                        this.cart.count = data.cart_count ?? Math.max(0, this.cart.count - 1);
                         this.updateCartBadge();
                         const row = btn.closest('.cart-item');
                         if (row) {
@@ -190,7 +216,7 @@
                             row.style.opacity = '0';
                             setTimeout(() => row.remove(), 300);
                         }
-                        this.showToast('Item removed from cart', 'info');
+                        this.showToast('Removed from Cart', 'info');
                         document.dispatchEvent(new CustomEvent('cart-updated', { detail: data }));
                     } else {
                         this.showToast(data.message || 'Failed to remove item', 'error');
@@ -212,10 +238,10 @@
 
             const formData = new FormData();
             formData.append('_token', this.csrfToken);
-            formData.append('_method', 'PATCH');
-            formData.append('qty', qty);
+            formData.append('cart_id', cartId);
+            formData.append('quantity', qty);
 
-            fetch(`/cart/${cartId}`, {
+            fetch('/cart/update', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -226,7 +252,7 @@
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.success) {
-                        this.cart.count = data.cartCount ?? this.cart.count;
+                        this.cart.count = data.cart_count ?? this.cart.count;
                         this.updateCartBadge();
 
                         if (data.subtotal && data.total) {
@@ -245,17 +271,7 @@
         },
 
         updateCartBadge() {
-            if (this.cartCountEl) {
-                this.cartCountEl.textContent = this.cart.count;
-                if (this.cart.count > 0) {
-                    this.cartCountEl.classList.remove('d-none');
-                } else {
-                    this.cartCountEl.classList.add('d-none');
-                }
-                this.cartCountEl.classList.remove('cart-count-bump');
-                void this.cartCountEl.offsetWidth;
-                this.cartCountEl.classList.add('cart-count-bump');
-            }
+            setCartBadge(this.cart.count);
         },
 
         /* ==============================================
@@ -264,7 +280,6 @@
 
         toggleWishlist(btn) {
             const productId = btn.dataset.productId;
-            const isActive = btn.classList.contains('active');
 
             if (btn.classList.contains('btn-loading')) return;
             btn.classList.add('btn-loading');
@@ -273,12 +288,7 @@
             formData.append('_token', this.csrfToken);
             formData.append('product_id', productId);
 
-            const method = isActive ? 'DELETE' : 'POST';
-            const url = isActive ? `/wishlist/${productId}` : '/wishlist/add';
-
-            formData.append('_method', method);
-
-            fetch(url, {
+            fetch('/wishlist/toggle', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -286,21 +296,23 @@
                 },
                 body: formData,
             })
-                .then((res) => res.json())
+                .then((res) => {
+                    if (res.status === 401) {
+                        window.location.href = '/login';
+                        return null;
+                    }
+                    if (!res.ok) throw new Error('Request failed');
+                    return res.json();
+                })
                 .then((data) => {
+                    if (!data) return;
                     if (data.success) {
-                        btn.classList.toggle('active');
+                        btn.classList.toggle('active', data.in_wishlist);
                         const icon = btn.querySelector('i');
-                        if (btn.classList.contains('active')) {
-                            icon.className = 'fas fa-heart';
-                            this.wishlist.count = data.wishlistCount ?? this.wishlist.count + 1;
-                            this.showToast('Added to wishlist!', 'success');
-                        } else {
-                            icon.className = 'far fa-heart';
-                            this.wishlist.count = data.wishlistCount ?? Math.max(0, this.wishlist.count - 1);
-                            this.showToast('Removed from wishlist', 'info');
-                        }
+                        icon.className = data.in_wishlist ? 'fas fa-heart' : 'far fa-heart';
+                        this.wishlist.count = data.wishlist_count ?? this.wishlist.count;
                         this.updateWishlistBadge();
+                        this.showToast(data.in_wishlist ? 'Added to Wishlist' : 'Removed from Wishlist', data.in_wishlist ? 'success' : 'info');
                         document.dispatchEvent(new CustomEvent('wishlist-updated', { detail: data }));
                     } else {
                         this.showToast(data.message || 'Unable to update wishlist', 'error');
@@ -315,17 +327,60 @@
         },
 
         updateWishlistBadge() {
-            if (this.wishlistCountEl) {
-                this.wishlistCountEl.textContent = this.wishlist.count;
-                if (this.wishlist.count > 0) {
-                    this.wishlistCountEl.classList.remove('d-none');
-                } else {
-                    this.wishlistCountEl.classList.add('d-none');
-                }
-                this.wishlistCountEl.classList.remove('wishlist-count-bump');
-                void this.wishlistCountEl.offsetWidth;
-                this.wishlistCountEl.classList.add('wishlist-count-bump');
-            }
+            setWishlistBadge(this.wishlist.count);
+        },
+
+        refreshCounts() {
+            fetch('/cart/count', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        this.cart.count = data.cart_count ?? this.cart.count;
+                        this.wishlist.count = data.wishlist_count ?? this.wishlist.count;
+                        this.updateCartBadge();
+                        this.updateWishlistBadge();
+                    }
+                })
+                .catch(() => {});
+            this.syncProductCards();
+        },
+
+        syncProductCards() {
+            fetch('/cart/ids', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (!data.success) return;
+                    const cartIds = data.cart_ids || [];
+                    const wishlistIds = data.wishlist_ids || [];
+
+                    document.querySelectorAll('.wishlist-btn').forEach((btn) => {
+                        if (btn.hasAttribute('onclick')) return;
+                        const pid = btn.dataset.productId;
+                        if (!pid) return;
+                        const inWishlist = wishlistIds.includes(pid);
+                        btn.classList.toggle('active', inWishlist);
+                        const icon = btn.querySelector('i');
+                        if (icon) icon.className = inWishlist ? 'fas fa-heart' : 'far fa-heart';
+                    });
+
+                    document.querySelectorAll('.add-to-cart-btn').forEach((btn) => {
+                        if (btn.hasAttribute('onclick')) return;
+                        const pid = btn.dataset.productId;
+                        if (!pid) return;
+                        const inCart = cartIds.includes(pid);
+                        btn.classList.toggle('in-cart', inCart);
+                        if (inCart) {
+                            btn.innerHTML = '<i class="fas fa-check me-1"></i> Remove from Cart';
+                        } else {
+                            btn.innerHTML = '<i class="fas fa-shopping-bag me-1"></i> Add to Cart';
+                        }
+                    });
+                })
+                .catch(() => {});
         },
 
         /* ==============================================
@@ -411,7 +466,7 @@
             if (btn.classList.contains('btn-loading')) return;
             btn.classList.add('btn-loading');
 
-            fetch(`/product/${productId}/quick-view`, {
+            fetch(`/products/quick-view/${productId}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
@@ -493,6 +548,8 @@
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
 
+            this.syncProductCards();
+
             modalEl.addEventListener('hidden.bs.modal', () => {
                 document.getElementById('quickViewContent').innerHTML = '';
             });
@@ -562,6 +619,42 @@
                 setTimeout(() => toast.remove(), 300);
             }, 1000);
         },
+    };
+
+    window.AURA = AURA;
+    window.showToast = (message, type) => AURA.showToast(message, type);
+
+    window.setCartBadge = function (count) {
+        const el = document.getElementById('cartCount');
+        if (!el) return;
+        AURA.cart.count = count;
+        el.textContent = count;
+        el.classList.toggle('d-none', count <= 0);
+        el.classList.remove('cart-count-bump');
+        void el.offsetWidth;
+        el.classList.add('cart-count-bump');
+    };
+
+    window.setWishlistBadge = function (count) {
+        const el = document.getElementById('wishlistCount');
+        if (!el) return;
+        AURA.wishlist.count = count;
+        el.textContent = count;
+        el.classList.toggle('d-none', count <= 0);
+        el.classList.remove('wishlist-count-bump');
+        void el.offsetWidth;
+        el.classList.add('wishlist-count-bump');
+    };
+
+    window.setNotifBadge = function (count) {
+        const el = document.getElementById('notificationCount');
+        if (!el) return;
+        if (count > 0) {
+            el.style.display = '';
+            el.textContent = count;
+        } else {
+            el.style.display = 'none';
+        }
     };
 
     if (document.readyState === 'loading') {

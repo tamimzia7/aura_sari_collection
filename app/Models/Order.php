@@ -50,6 +50,7 @@ class Order extends Model
         'billing_address_id',
         'subtotal',
         'discount',
+        'coupon_id',
         'coupon_code',
         'shipping_cost',
         'tax',

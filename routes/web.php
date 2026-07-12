@@ -48,6 +48,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::post('/remove', [CartController::class, 'remove'])->name('remove');
     Route::post('/apply-coupon', [CartController::class, 'applyCoupon'])->name('apply-coupon');
     Route::get('/count', [CartController::class, 'getCount'])->name('count');
+    Route::get('/ids', [CartController::class, 'getIds'])->name('ids');
 });
 
 // Auth routes
@@ -82,6 +83,8 @@ Route::middleware('auth')->group(function () {
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
+    Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.remove-coupon');
 
     // Direct Buy-Now Checkout
     Route::get('/buy-now/{id}', [CheckoutController::class, 'directCheckout'])->name('checkout.direct');

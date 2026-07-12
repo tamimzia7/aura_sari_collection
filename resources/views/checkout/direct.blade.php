@@ -235,6 +235,137 @@
     padding: 6px;
     outline: none;
 }
+/* ── Coupon Section – Dark Gold Theme ── */
+.coupon-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: all .3s ease;
+}
+.coupon-section .coupon-title {
+    color: #D4AF37;
+    font-size: .85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+}
+.coupon-section .coupon-input-group {
+    display: flex;
+    gap: 8px;
+}
+.coupon-section .coupon-input-group input {
+    flex: 1;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .85rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: all .3s;
+    outline: none;
+}
+.coupon-section .coupon-input-group input:focus {
+    border-color: #D4AF37;
+    background: rgba(255,255,255,.12);
+    box-shadow: 0 0 0 3px rgba(212,175,55,.15);
+}
+.coupon-section .coupon-input-group input::placeholder {
+    color: rgba(255,255,255,.35);
+    text-transform: none;
+    letter-spacing: normal;
+}
+.coupon-section .btn-apply {
+    background: #D4AF37;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: .82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .3s;
+    white-space: nowrap;
+}
+.coupon-section .btn-apply:hover {
+    background: #c9a22f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(212,175,55,.3);
+}
+.coupon-section .btn-apply:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.coupon-message {
+    font-size: .8rem;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    animation: fadeSlideDown .3s ease;
+}
+.coupon-message.success {
+    background: rgba(39,174,96,.15);
+    color: #2ecc71;
+    border: 1px solid rgba(39,174,96,.3);
+}
+.coupon-message.error {
+    background: rgba(231,76,60,.15);
+    color: #e74c3c;
+    border: 1px solid rgba(231,76,60,.3);
+}
+.coupon-applied-badge {
+    background: rgba(39,174,96,.12);
+    border: 1px solid rgba(39,174,96,.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeSlideDown .3s ease;
+}
+.coupon-applied-badge .coupon-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2ecc71;
+    font-size: .85rem;
+    font-weight: 500;
+    flex-wrap: wrap;
+}
+.coupon-applied-badge .coupon-discount-amount {
+    color: #fff;
+    background: rgba(39,174,96,.25);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: .8rem;
+}
+.coupon-applied-badge .btn-remove-coupon {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,.5);
+    cursor: pointer;
+    font-size: .78rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all .2s;
+}
+.coupon-applied-badge .btn-remove-coupon:hover {
+    color: #e74c3c;
+    background: rgba(231,76,60,.15);
+}
+@keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 @media (max-width: 767px) {
     .order-summary {
         position: static;
@@ -415,6 +546,30 @@
                     <div class="order-summary">
                         <h5><i class="fas fa-receipt me-2"></i>Order Summary</h5>
 
+                        {{-- Coupon Section --}}
+                        <div class="coupon-section" id="directCouponSection">
+                            <div class="coupon-title"><i class="fas fa-ticket-alt me-2"></i>Coupon Code</div>
+
+                            <div id="directCouponForm" @if($couponCode) style="display:none;" @endif>
+                                <div class="coupon-input-group">
+                                    <input type="text" id="directCouponInput" placeholder="Enter coupon code" maxlength="20" autocomplete="off">
+                                    <button type="button" class="btn-apply" id="directApplyCoupon">Apply</button>
+                                </div>
+                                <div id="directCouponMessage" class="coupon-message" style="display:none;"></div>
+                            </div>
+
+                            <div id="directCouponApplied" class="coupon-applied-badge" @if(!$couponCode) style="display:none;" @endif>
+                                <div class="coupon-info">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span id="directAppliedCode">{{ $couponCode ? strtoupper($couponCode) : '' }}</span>
+                                    <span class="coupon-discount-amount" id="directAppliedDiscount">-₹{{ number_format($discount, 0) }}</span>
+                                </div>
+                                <button type="button" class="btn-remove-coupon" id="directRemoveCoupon">
+                                    <i class="fas fa-times me-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="summary-line">
                             <span>Price (per unit)</span>
                             <span class="summary-value">₹{{ number_format($price, 0) }}</span>
@@ -437,12 +592,10 @@
                                 @endif
                             </span>
                         </div>
-                        @if($discount > 0)
-                        <div class="summary-line">
+                        <div class="summary-line" id="directDiscountRow" @if($discount <= 0) style="display:none;" @endif>
                             <span>Discount</span>
-                            <span class="summary-value text-success">-₹{{ number_format($discount, 0) }}</span>
+                            <span class="summary-value text-success" id="directDiscountValue">-₹{{ number_format($discount, 0) }}</span>
                         </div>
-                        @endif
                         <div class="summary-line total">
                             <span>Grand Total</span>
                             <span class="summary-value" id="displayTotal">₹{{ number_format($grandTotal, 0) }}</span>
@@ -475,6 +628,7 @@
     };
 
     const unitPrice = {{ $price }};
+    let appliedCouponDiscount = {{ $discount }};
 
     function selectPayment(el, value) {
         document.querySelectorAll('.payment-method').forEach(p => p.classList.remove('active'));
@@ -502,7 +656,9 @@
         document.getElementById('hiddenQty').value = qty;
         document.getElementById('displayQty').textContent = qty;
         document.getElementById('displaySubtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
-        document.getElementById('displayTotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
+
+        const grandTotal = subtotal - appliedCouponDiscount;
+        document.getElementById('displayTotal').textContent = '₹' + grandTotal.toLocaleString('en-IN');
     }
 
     function incrementQty() {
@@ -523,6 +679,94 @@
             updateTotals();
         }
     }
+
+    // ── Coupon Apply ──
+    $('#directApplyCoupon').on('click', function () {
+        let code = $('#directCouponInput').val().trim();
+        let msgEl = $('#directCouponMessage');
+        msgEl.hide();
+
+        if (!code) {
+            msgEl.removeClass('success').addClass('error').text('Please enter a coupon code').fadeIn(200);
+            return;
+        }
+
+        let qty = parseInt(document.getElementById('qtyInput').value) || 1;
+        let subtotal = unitPrice * qty;
+
+        let btn = $(this);
+        btn.prop('disabled', true).text('Applying...');
+
+        $.ajax({
+            url: '{{ route("checkout.apply-coupon") }}',
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', code: code, subtotal: subtotal },
+            success: function (res) {
+                if (res.success) {
+                    msgEl.hide();
+                    $('#directCouponForm').fadeOut(200);
+                    $('#directAppliedCode').text(code.toUpperCase());
+                    let fmt = Number(res.discount).toLocaleString('en-IN');
+                    $('#directAppliedDiscount').text('-₹' + fmt);
+                    $('#directCouponApplied').fadeIn(200);
+
+                    appliedCouponDiscount = Number(res.discount);
+                    let subtotalVal = Number(res.subtotal);
+                    $('#displaySubtotal').text('₹' + subtotalVal.toLocaleString('en-IN'));
+                    $('#directDiscountValue').text('-₹' + appliedCouponDiscount.toLocaleString('en-IN'));
+                    $('#directDiscountRow').fadeIn(200);
+                    let grandTotal = subtotalVal - appliedCouponDiscount;
+                    $('#displayTotal').text('₹' + grandTotal.toLocaleString('en-IN'));
+                } else {
+                    msgEl.removeClass('success').addClass('error').text(res.message).fadeIn(200);
+                }
+            },
+            error: function () {
+                msgEl.removeClass('success').addClass('error').text('Failed to apply coupon. Please try again.').fadeIn(200);
+            },
+            complete: function () {
+                btn.prop('disabled', false).text('Apply');
+            }
+        });
+    });
+
+    // ── Coupon Enter key ──
+    $('#directCouponInput').on('keydown', function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#directApplyCoupon').trigger('click');
+        }
+    });
+
+    // ── Coupon Remove ──
+    $('#directRemoveCoupon').on('click', function () {
+        let qty = parseInt(document.getElementById('qtyInput').value) || 1;
+        let subtotal = unitPrice * qty;
+
+        $.ajax({
+            url: '{{ route("checkout.remove-coupon") }}',
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', subtotal: subtotal },
+            success: function (res) {
+                if (res.success) {
+                    $('#directCouponApplied').fadeOut(200, function () {
+                        $('#directCouponForm').fadeIn(200);
+                        $('#directCouponInput').val('');
+                        $('#directCouponMessage').hide();
+
+                        appliedCouponDiscount = 0;
+                        let subtotalVal = Number(res.subtotal);
+                        $('#displaySubtotal').text('₹' + subtotalVal.toLocaleString('en-IN'));
+                        $('#directDiscountRow').fadeOut(200);
+                        $('#displayTotal').text('₹' + subtotalVal.toLocaleString('en-IN'));
+                    });
+                }
+            },
+            error: function () {
+                showToast('Failed to remove coupon.', 'error');
+            }
+        });
+    });
 
     document.getElementById('directCheckoutForm').addEventListener('submit', function (e) {
         let btn = document.getElementById('placeOrderBtn');

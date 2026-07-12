@@ -435,6 +435,9 @@ $(document).ready(function () {
             success: function (res) {
                 if (res.success) {
                     removeCard(wishlistId);
+                    if (res.wishlist_count !== undefined) {
+                        setWishlistBadge(res.wishlist_count);
+                    }
                     showToast('Removed from wishlist');
                 }
             },
@@ -460,9 +463,9 @@ $(document).ready(function () {
             success: function (res) {
                 if (res.success) {
                     removeCard(wishlistId);
-                    let countEl = $('#cartCount');
-                    let current = parseInt(countEl.text()) || 0;
-                    countEl.text(current + 1);
+                    if (res.wishlist_count !== undefined) {
+                        setWishlistBadge(res.wishlist_count);
+                    }
                     showToast('Moved to cart!');
                 }
             },

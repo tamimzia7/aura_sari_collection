@@ -249,7 +249,12 @@
                     @if($order->coupon_code)
                     <div>
                         <div style="font-size:12px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">Coupon</div>
-                        <div><span class="badge bg-light text-dark">{{ $order->coupon_code }}</span></div>
+                        <div>
+                            <span class="badge bg-light text-dark">{{ $order->coupon_code }}</span>
+                            @if($order->coupon_id)
+                                <a href="{{ route('admin.coupons.edit', $order->coupon_id) }}" class="badge bg-info text-white ms-1 text-decoration-none" title="View Coupon">#{{ $order->coupon_id }}</a>
+                            @endif
+                        </div>
                     </div>
                     @endif
                 </div>

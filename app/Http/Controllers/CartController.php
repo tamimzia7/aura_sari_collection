@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Coupon;
-use App\Models\Product;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,6 +22,13 @@ class CartController extends Controller
         }
 
         return Cart::where('session_id', session()->getId());
+    }
+
+    protected function cartResponseData(): array
+    {
+        $cartCount = $this->getCartQuery()->sum('quantity');
+
+        return compact('cartCount');
     }
 
     public function index()
@@ -44,39 +51,45 @@ class CartController extends Controller
             'quantity' => ['required', 'integer', 'min:1', 'max:10'],
         ]);
 
-        $product = Product::findOrFail($request->product_id);
+        $existing = $this->getCartQuery()
+            ->where('product_id', $request->product_id)
+            ->where('variant_id', $request->variant_id)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+
+            $data = $this->cartResponseData();
+
+            return response()->json([
+                'success' => true,
+                'action' => 'removed',
+                'in_cart' => false,
+                'cart_count' => $data['cartCount'],
+            ]);
+        }
 
         $data = [
-            'product_id' => $product->id,
+            'product_id' => $request->product_id,
             'variant_id' => $request->variant_id,
             'quantity' => $request->quantity,
         ];
 
         if (Auth::check()) {
             $data['user_id'] = Auth::id();
-            $data['session_id'] = null;
         } else {
             $data['session_id'] = session()->getId();
-            $data['user_id'] = null;
         }
 
-        $existing = $this->getCartQuery()
-            ->where('product_id', $product->id)
-            ->where('variant_id', $request->variant_id)
-            ->first();
+        Cart::create($data);
 
-        if ($existing) {
-            $existing->increment('quantity', $request->quantity);
-        } else {
-            Cart::create($data);
-        }
-
-        $count = $this->getCartQuery()->sum('quantity');
+        $counts = $this->cartResponseData();
 
         return response()->json([
             'success' => true,
-            'message' => 'Product added to cart',
-            'cart_count' => $count,
+            'action' => 'added',
+            'in_cart' => true,
+            'cart_count' => $counts['cartCount'],
         ]);
     }
 
@@ -98,7 +111,7 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Cart updated',
+            'action' => 'updated',
             'cart_count' => $count,
             'subtotal' => $subtotal,
         ]);
@@ -117,7 +130,7 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Item removed from cart',
+            'action' => 'removed',
             'cart_count' => $count,
         ]);
     }
@@ -165,7 +178,11 @@ class CartController extends Controller
             ? ($subtotal * $coupon->value / 100)
             : min($coupon->value, $subtotal);
 
-        session(['coupon' => ['code' => $coupon->code, 'discount' => $discount]]);
+        session(['coupon' => [
+            'code' => $coupon->code,
+            'coupon_id' => $coupon->id,
+            'discount' => $discount,
+        ]]);
 
         return response()->json([
             'success' => true,
@@ -176,11 +193,27 @@ class CartController extends Controller
 
     public function getCount()
     {
-        $count = $this->getCartQuery()->sum('quantity');
+        $cartCount = $this->getCartQuery()->sum('quantity');
+        $wishlistCount = Auth::check() ? Wishlist::where('user_id', Auth::id())->count() : 0;
 
         return response()->json([
             'success' => true,
-            'count' => $count,
+            'cart_count' => $cartCount,
+            'wishlist_count' => $wishlistCount,
+        ]);
+    }
+
+    public function getIds()
+    {
+        $cartProductIds = $this->getCartQuery()->pluck('product_id')->toArray();
+        $wishlistProductIds = Auth::check()
+            ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
+
+        return response()->json([
+            'success' => true,
+            'cart_ids' => $cartProductIds,
+            'wishlist_ids' => $wishlistProductIds,
         ]);
     }
 }

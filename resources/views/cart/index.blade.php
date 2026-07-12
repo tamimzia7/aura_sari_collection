@@ -578,7 +578,7 @@ $(document).ready(function () {
             },
             success: function (res) {
                 if (res.success) {
-                    $('#cartCount').text(res.cart_count);
+                    setCartBadge(res.cart_count);
                     $('#summarySubtotal').text('₹' + Number(res.subtotal).toLocaleString('en-IN'));
 
                     let shipping = res.subtotal >= 2000 ? 0 : 150;
@@ -643,7 +643,7 @@ $(document).ready(function () {
                 if (res.success) {
                     $('#cart-row-' + cartId).fadeOut(300, function () {
                         $(this).remove();
-                        $('#cartCount').text(res.cart_count);
+                        setCartBadge(res.cart_count);
                         if ($('.cart-item').length === 0) {
                             location.reload();
                         }

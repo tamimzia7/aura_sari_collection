@@ -48,7 +48,7 @@
                 <a href="{{ route('cart') }}" class="nav-icon position-relative text-decoration-none" data-bs-toggle="tooltip" title="Cart">
                     <i class="fas fa-shopping-bag"></i>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill aura-badge cart-count" id="cartCount">
-                        {{ session('cart_count', session()->has('cart') ? count(session('cart')) : 0) }}
+                        {{ Auth::check() ? \App\Models\Cart::where('user_id', Auth::id())->sum('quantity') : \App\Models\Cart::where('session_id', session()->getId())->sum('quantity') }}
                     </span>
                 </a>
 
@@ -56,7 +56,7 @@
                     <div class="dropdown" id="customerNotifWrapper">
                         <button class="nav-icon position-relative text-decoration-none btn btn-link p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="customerNotifBell" title="Notifications" style="background:none;color:rgba(255,255,255,0.7);font-size:1.1rem;">
                             <i class="far fa-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill aura-badge notif-count" id="customerNotifBadge" style="display:none;font-size:0.55rem;min-width:16px;height:16px;">0</span>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill aura-badge notif-count" id="notificationCount" style="display:none;font-size:0.55rem;min-width:16px;height:16px;">{{ Auth::check() ? \App\Models\Notification::where('user_id', Auth::id())->where('type', 'customer')->where('is_read', false)->count() : 0 }}</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end aura-dropdown" style="width:340px;padding:0;border-radius:12px;" id="customerNotifDropdown">
                             <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-secondary border-opacity-10">
@@ -364,17 +364,12 @@
         if (!userId) return;
 
         $.get('{{ route("notifications.fetch") }}', function(data) {
-            const badge = document.getElementById('customerNotifBadge');
             const list = document.getElementById('customerNotifList');
             const countSpan = document.getElementById('customerNotifCount');
 
-            if (data.unread_count > 0) {
-                badge.style.display = '';
-                badge.textContent = data.unread_count;
-            } else {
-                badge.style.display = 'none';
+            if (typeof setNotifBadge === 'function') {
+                setNotifBadge(data.unread_count);
             }
-
             countSpan.textContent = data.unread_count + ' new';
 
             let html = '';
@@ -420,7 +415,9 @@
         $.post('{{ route("notifications.read-all") }}', {
             _token: '{{ csrf_token() }}'
         }, function() {
-            document.getElementById('customerNotifBadge').style.display = 'none';
+            if (typeof setNotifBadge === 'function') {
+                setNotifBadge(0);
+            }
             document.getElementById('customerNotifCount').textContent = '0 new';
             document.querySelectorAll('#customerNotifList a').forEach(function(item) {
                 item.classList.remove('bg-dark', 'bg-opacity-25');
