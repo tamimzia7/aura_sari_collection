@@ -62,7 +62,27 @@ class CheckoutController extends Controller
         $isAdvancePayment = $request->payment_method !== 'cod';
         $paymentStatus = $isAdvancePayment ? Order::PAYMENT_PENDING_VERIFICATION : Order::PAYMENT_CASH_ON_DELIVERY;
 
-        $order = DB::transaction(function () use ($request, $cartItems, $subtotal, $discount, $shippingCost, $tax, $grandTotal, $paymentStatus, $isAdvancePayment) {
+        $addressId = $request->address_id;
+
+        if ($addressId === 'new') {
+            $address = Address::create([
+                'user_id' => Auth::id(),
+                'label' => 'Shipping',
+                'name' => $request->shipping_name,
+                'phone' => $request->shipping_phone,
+                'address_line1' => $request->shipping_address_line1,
+                'address_line2' => $request->shipping_address_line2,
+                'city' => $request->shipping_city,
+                'state' => $request->shipping_state,
+                'zip_code' => $request->shipping_zip,
+                'country' => 'Bangladesh',
+                'type' => 'shipping',
+                'is_default' => false,
+            ]);
+            $addressId = $address->id;
+        }
+
+        $order = DB::transaction(function () use ($request, $cartItems, $subtotal, $discount, $shippingCost, $tax, $grandTotal, $paymentStatus, $isAdvancePayment, $addressId) {
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'status' => Order::STATUS_PENDING,
@@ -70,8 +90,8 @@ class CheckoutController extends Controller
                 'payment_status' => $paymentStatus,
                 'transaction_id' => $isAdvancePayment ? $request->transaction_id : null,
                 'sender_number' => $isAdvancePayment ? $request->sender_number : null,
-                'shipping_address_id' => $request->shipping_address_id,
-                'billing_address_id' => $request->billing_address_id,
+                'shipping_address_id' => $addressId,
+                'billing_address_id' => $addressId,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'coupon_id' => session('coupon.coupon_id'),

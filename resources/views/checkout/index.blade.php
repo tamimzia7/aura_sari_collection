@@ -88,22 +88,27 @@
 .address-card {
     border: 2px solid #dee2e6;
     border-radius: 10px;
-    padding: 16px;
+    padding: 16px 44px 16px 16px;
     cursor: pointer;
     transition: all 0.2s;
     margin-bottom: 10px;
     position: relative;
+    overflow: hidden;
 }
 .address-card:hover {
-    border-color: #ccc;
+    border-color: #d4af37;
+    box-shadow: 0 2px 12px rgba(212, 175, 55, 0.12);
 }
 .address-card.active {
     border-color: #d4af37;
     background: #fffdf5;
+    box-shadow: 0 2px 12px rgba(212, 175, 55, 0.15);
 }
 .address-card .address-radio {
     position: absolute;
     opacity: 0;
+    width: 0;
+    height: 0;
 }
 .address-card .address-label {
     font-weight: 600;
@@ -122,6 +127,29 @@
     background: #d4af37;
     color: #fff;
     display: inline-block;
+}
+.address-card .address-check-icon {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    color: #d4af37;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.address-card.active .address-check-icon {
+    opacity: 1;
+}
+.address-selection-error {
+    background: #fff5f5;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #e74c3c;
+    font-size: 0.85rem;
+    display: none;
+    margin-bottom: 10px;
 }
 .payment-method {
     border: 2px solid #dee2e6;
@@ -468,14 +496,19 @@
                             Shipping Address
                         </div>
 
+                        <div id="addressSelectionError" class="address-selection-error">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Please select a shipping address.
+                        </div>
+
                         @if($addresses->count() > 0)
                             <div class="saved-addresses">
                                 <label class="form-label mb-2">Select a saved address</label>
                                 @foreach($addresses as $address)
-                                    <label class="address-card {{ $loop->first ? 'active' : '' }}">
-                                        <input type="radio" name="shipping_address_id" value="{{ $address->id }}"
-                                               class="address-radio" {{ $loop->first ? 'checked' : '' }}
-                                               onchange="selectAddress(this)">
+                                    <label class="address-card {{ $loop->first ? 'active' : '' }}"
+                                           onclick="selectAddressCard(this, {{ $address->id }})">
+                                        <input type="radio" name="address_id" value="{{ $address->id }}"
+                                               class="address-radio" {{ $loop->first ? 'checked' : '' }}>
                                         <div>
                                             <div class="address-label">
                                                 {{ $address->label ?? 'Address' }}
@@ -490,6 +523,7 @@
                                                 Phone: {{ $address->phone }}
                                             </div>
                                         </div>
+                                        <div class="address-check-icon"><i class="fas fa-check-circle"></i></div>
                                     </label>
                                 @endforeach
                                 <button type="button" class="btn-add-address mt-2" onclick="toggleNewAddress()">
@@ -497,11 +531,12 @@
                                 </button>
                             </div>
                         @endif
+                        <input type="hidden" name="address_id" id="selectedAddressId"
+                               value="{{ $addresses->isNotEmpty() ? $addresses->first()->id : '' }}">
 
                         <div id="newAddressForm" class="{{ $addresses->count() > 0 ? 'd-none' : '' }}">
                             @if($addresses->count() > 0)
                                 <div class="mb-3">
-                                    <input type="hidden" name="shipping_address_id" value="new">
                                     <label class="form-label">New Address</label>
                                 </div>
                             @endif
@@ -537,7 +572,7 @@
                             </div>
                         </div>
 
-                        @error('shipping_address_id')
+                        @error('address_id')
                             <div class="text-danger small mt-2">{{ $message }}</div>
                         @enderror
                     </div>
@@ -768,39 +803,87 @@
 
 @push('scripts')
 <script>
-    function selectAddress(el) {
-        document.querySelectorAll('.address-card').forEach(c => c.classList.remove('active'));
-        el.closest('.address-card').classList.add('active');
+    // ── Address Selection ──
+    function el(id) { return document.getElementById(id); }
 
-        let isNew = el.value === 'new';
-        document.getElementById('newAddressForm').classList.toggle('d-none', !isNew);
+    function selectAddressCard(card, addressId) {
+        document.querySelectorAll('.address-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+
+        let radio = card.querySelector('.address-radio');
+        if (radio) radio.checked = true;
+
+        let sid = el('selectedAddressId');
+        if (sid) sid.value = addressId;
+
+        let err = el('addressSelectionError');
+        if (err) err.style.display = 'none';
+
+        let btn = el('placeOrderBtn');
+        if (btn) btn.disabled = false;
+
+        let naf = el('newAddressForm');
+        if (naf) naf.classList.add('d-none');
     }
 
     function toggleNewAddress() {
-        let form = document.getElementById('newAddressForm');
-        let isHidden = form.classList.contains('d-none');
-        form.classList.remove('d-none');
+        let form = el('newAddressForm');
+        if (form) form.classList.remove('d-none');
 
         let newRadio = document.querySelector('.address-card .address-radio[value="new"]');
         if (!newRadio) {
             let container = document.querySelector('.saved-addresses');
-            let label = document.createElement('label');
-            label.className = 'address-card active';
-            label.innerHTML = `
-                <input type="radio" name="shipping_address_id" value="new" class="address-radio" checked onchange="selectAddress(this)">
-                <div>
-                    <div class="address-label">New Address</div>
-                    <div class="address-detail">Enter a new shipping address below</div>
-                </div>
-            `;
-            container.insertBefore(label, container.lastElementChild);
+            if (container) {
+                let label = document.createElement('label');
+                label.className = 'address-card active';
+                label.setAttribute('onclick', "selectNewAddressCard(this)");
+                label.innerHTML = `
+                    <input type="radio" name="address_id" value="new" class="address-radio" checked>
+                    <div>
+                        <div class="address-label">New Address</div>
+                        <div class="address-detail">Enter a new shipping address below</div>
+                    </div>
+                    <div class="address-check-icon"><i class="fas fa-check-circle"></i></div>
+                `;
+                container.insertBefore(label, container.lastElementChild);
+            }
         } else {
             newRadio.checked = true;
             document.querySelectorAll('.address-card').forEach(c => c.classList.remove('active'));
-            newRadio.closest('.address-card').classList.add('active');
+            let card = newRadio.closest('.address-card');
+            if (card) card.classList.add('active');
         }
 
-        document.querySelector('.btn-add-address').style.display = 'none';
+        let sid = el('selectedAddressId');
+        if (sid) sid.value = 'new';
+
+        let err = el('addressSelectionError');
+        if (err) err.style.display = 'none';
+
+        let btn = el('placeOrderBtn');
+        if (btn) btn.disabled = false;
+
+        let addBtn = document.querySelector('.btn-add-address');
+        if (addBtn) addBtn.style.display = 'none';
+    }
+
+    function selectNewAddressCard(card) {
+        document.querySelectorAll('.address-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        let radio = card.querySelector('.address-radio');
+        if (radio) radio.checked = true;
+
+        let sid = el('selectedAddressId');
+        if (sid) sid.value = 'new';
+
+        let err = el('addressSelectionError');
+        if (err) err.style.display = 'none';
+
+        let btn = el('placeOrderBtn');
+        if (btn) btn.disabled = false;
+
+        let naf = el('newAddressForm');
+        if (naf) naf.classList.remove('d-none');
     }
 
     function toggleBilling(checkbox) {
@@ -832,10 +915,27 @@
         }
     }
 
+    // ── Init: set address_id on page load ──
+    (function initCheckout() {
+        let firstRadio = document.querySelector('.address-radio:checked');
+        let sid = document.getElementById('selectedAddressId');
+        if (firstRadio) {
+            if (sid) sid.value = firstRadio.value;
+        } else {
+            // No saved addresses — default to new address
+            if (sid) sid.value = 'new';
+        }
+        let btn = document.getElementById('placeOrderBtn');
+        if (btn) btn.disabled = false;
+    })();
+
+    // ── Form Submit (simple: disable, show spinner, let the browser submit) ──
     document.getElementById('checkoutForm').addEventListener('submit', function (e) {
         let btn = document.getElementById('placeOrderBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+        }
     });
 
     // ── Coupon Apply ──
