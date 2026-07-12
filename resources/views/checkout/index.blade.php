@@ -543,15 +543,15 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="shipping_name" class="form-control" placeholder="John Doe" required>
+                                    <input type="text" name="shipping_name" class="form-control" placeholder="John Doe">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                    <input type="tel" name="shipping_phone" class="form-control" placeholder="+880 1XXX-XXXXXX" required>
+                                    <input type="tel" name="shipping_phone" class="form-control" placeholder="+880 1XXX-XXXXXX">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Address Line 1 <span class="text-danger">*</span></label>
-                                    <input type="text" name="shipping_address_line1" class="form-control" placeholder="House, Street, Area" required>
+                                    <input type="text" name="shipping_address_line1" class="form-control" placeholder="House, Street, Area">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Address Line 2</label>
@@ -559,15 +559,15 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">City <span class="text-danger">*</span></label>
-                                    <input type="text" name="shipping_city" class="form-control" placeholder="Dhaka" required>
+                                    <input type="text" name="shipping_city" class="form-control" placeholder="Dhaka">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">State <span class="text-danger">*</span></label>
-                                    <input type="text" name="shipping_state" class="form-control" placeholder="Dhaka Division" required>
+                                    <input type="text" name="shipping_state" class="form-control" placeholder="Dhaka Division">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">ZIP Code <span class="text-danger">*</span></label>
-                                    <input type="text" name="shipping_zip" class="form-control" placeholder="1205" required>
+                                    <input type="text" name="shipping_zip" class="form-control" placeholder="1205">
                                 </div>
                             </div>
                         </div>
@@ -806,6 +806,24 @@
     // ── Address Selection ──
     function el(id) { return document.getElementById(id); }
 
+    const newAddressFields = [
+        'shipping_name', 'shipping_phone', 'shipping_address_line1',
+        'shipping_city', 'shipping_state', 'shipping_zip',
+    ];
+
+    function setNewAddressRequired(required) {
+        newAddressFields.forEach(function (name) {
+            let field = document.querySelector('[name="' + name + '"]');
+            if (field) {
+                if (required) {
+                    field.setAttribute('required', 'required');
+                } else {
+                    field.removeAttribute('required');
+                }
+            }
+        });
+    }
+
     function selectAddressCard(card, addressId) {
         document.querySelectorAll('.address-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
@@ -824,6 +842,8 @@
 
         let naf = el('newAddressForm');
         if (naf) naf.classList.add('d-none');
+
+        setNewAddressRequired(false);
     }
 
     function toggleNewAddress() {
@@ -865,6 +885,8 @@
 
         let addBtn = document.querySelector('.btn-add-address');
         if (addBtn) addBtn.style.display = 'none';
+
+        setNewAddressRequired(true);
     }
 
     function selectNewAddressCard(card) {
@@ -884,6 +906,8 @@
 
         let naf = el('newAddressForm');
         if (naf) naf.classList.remove('d-none');
+
+        setNewAddressRequired(true);
     }
 
     function toggleBilling(checkbox) {
@@ -924,13 +948,26 @@
         } else {
             // No saved addresses — default to new address
             if (sid) sid.value = 'new';
+            setNewAddressRequired(true);
         }
         let btn = document.getElementById('placeOrderBtn');
         if (btn) btn.disabled = false;
     })();
 
-    // ── Form Submit (simple: disable, show spinner, let the browser submit) ──
+    // ── Form Submit (validate address, disable, show spinner) ──
     document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+        let sid = document.getElementById('selectedAddressId');
+        let err = document.getElementById('addressSelectionError');
+
+        if (!sid || !sid.value) {
+            if (err) {
+                err.style.display = 'block';
+                err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            e.preventDefault();
+            return;
+        }
+
         let btn = document.getElementById('placeOrderBtn');
         if (btn) {
             btn.disabled = true;
