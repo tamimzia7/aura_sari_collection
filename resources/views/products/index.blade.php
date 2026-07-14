@@ -1014,10 +1014,7 @@ body {
 $(function() {
     'use strict';
 
-    const $grid = $('#product-grid');
     const $wrapper = $('#product-grid-wrapper');
-    const $pagination = $('#pagination-section');
-    const $toolbarStats = $('#toolbar-stats');
     const $searchInput = $('#search-input');
     const $sortSelect = $('#sort-select');
 
@@ -1084,31 +1081,47 @@ $(function() {
 
         $wrapper.addClass('opacity-50 pointer-events-none');
 
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: 'html',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            success: function(html) {
-                const $html = $(html);
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html, application/xhtml+xml',
+            },
+        })
+            .then(function(response) {
+                if (!response.ok) throw new Error('Failed to load products');
+                return response.text();
+            })
+            .then(function(html) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
 
-                const $newGrid = $html.find('#product-grid');
-                if ($newGrid.length) {
-                    const viewMode = $('input[name="view-toggle"]:checked').val();
-                    if (viewMode === 'list') {
-                        $newGrid.addClass('list-view');
+                const newGrid = doc.getElementById('product-grid');
+                if (newGrid) {
+                    const viewMode = document.querySelector('input[name="view-toggle"]:checked');
+                    if (viewMode && viewMode.value === 'list') {
+                        newGrid.classList.add('list-view');
                     }
-                    $grid.replaceWith($newGrid);
+                    const currentGrid = document.getElementById('product-grid');
+                    if (currentGrid && currentGrid.parentNode) {
+                        currentGrid.replaceWith(newGrid);
+                    }
                 }
 
-                const $newPagination = $html.find('#pagination-section');
-                if ($newPagination.length) {
-                    $pagination.html($newPagination.html());
+                const newPagination = doc.getElementById('pagination-section');
+                if (newPagination) {
+                    const currentPagination = document.getElementById('pagination-section');
+                    if (currentPagination) {
+                        currentPagination.replaceWith(newPagination);
+                    }
                 }
 
-                const $newToolbar = $html.find('#toolbar-stats');
-                if ($newToolbar.length) {
-                    $toolbarStats.html($newToolbar.html());
+                const newToolbar = doc.getElementById('toolbar-stats');
+                if (newToolbar) {
+                    const currentToolbar = document.getElementById('toolbar-stats');
+                    if (currentToolbar) {
+                        currentToolbar.replaceWith(newToolbar);
+                    }
                 }
 
                 if (queryString) {
@@ -1118,18 +1131,17 @@ $(function() {
                 }
 
                 if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-                    $('[data-bs-toggle="tooltip"]').each(function() {
-                        try { new bootstrap.Tooltip(this); } catch(e) {}
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+                        try { new bootstrap.Tooltip(el); } catch(e) {}
                     });
                 }
-            },
-            error: function() {
-                console.error('Failed to load products.');
-            },
-            complete: function() {
+            })
+            .catch(function(err) {
+                console.error('Failed to load products:', err);
+            })
+            .finally(function() {
                 $wrapper.removeClass('opacity-50 pointer-events-none');
-            }
-        });
+            });
     }
 
     /* ─── Filter Change Events ─── */
@@ -1180,7 +1192,8 @@ $(function() {
 
     $(document).on('change', 'input[name="view-toggle"]', function() {
         const isList = $(this).val() === 'list' && $(this).is(':checked');
-        $grid.toggleClass('list-view', isList);
+        const gridEl = document.getElementById('product-grid');
+        if (gridEl) gridEl.classList.toggle('list-view', isList);
         const params = collectParams(1);
         const queryString = params.toString();
         const url = window.location.pathname + (queryString ? '?' + queryString : '');

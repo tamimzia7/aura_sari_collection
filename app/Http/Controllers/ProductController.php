@@ -16,6 +16,11 @@ class ProductController extends Controller
 
         $products = $query->paginate(20)->withQueryString();
 
+        // AJAX request — return only the partial product list chunk
+        if ($request->ajax() || $request->wantsJson()) {
+            return view('products.partials.product-list', compact('products'));
+        }
+
         $categories = Category::where('status', true)->orderBy('sort_order')->get();
         $brands = Brand::where('status', true)->get();
         $colors = Product::where('status', true)->whereNotNull('color')->distinct()->pluck('color');
